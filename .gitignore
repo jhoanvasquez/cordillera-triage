@@ -1,0 +1,27 @@
+# === Secrets — NEVER commit (git history cannot be rewritten) ===
+.env
+.env.*
+!.env.example
+
+# === Claude Code — personal scope only ===
+CLAUDE.local.md
+.claude/settings.local.json
+
+# === Python ===
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+dist/
+build/
+
+# === OS / editors ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
