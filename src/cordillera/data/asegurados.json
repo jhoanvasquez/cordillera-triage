@@ -1,8 +1,0 @@
-[
-  { "id": "A-001", "documento": "DOC-FIC-0001", "nombre": "Juan Pérez", "fecha_nacimiento": "1985-03-12" },
-  { "id": "A-002", "documento": "DOC-FIC-0002", "nombre": "María Gómez", "fecha_nacimiento": "1990-07-22" },
-  { "id": "A-003", "documento": "DOC-FIC-0003", "nombre": "Carlos Rodríguez", "fecha_nacimiento": "1978-11-02" },
-  { "id": "A-004", "documento": "DOC-FIC-0004", "nombre": "Ana Martínez", "fecha_nacimiento": "1995-05-30" },
-  { "id": "A-005", "documento": "DOC-FIC-0005", "nombre": "María Gómez", "fecha_nacimiento": "1988-01-18" },
-  { "id": "A-999", "documento": "DOC-FIC-9999", "nombre": "Registro de Prueba Transitoria", "fecha_nacimiento": "2000-01-01", "flaky": true }
-]

@@ -57,14 +57,20 @@ El GitHub Project y los issues son la única fuente de verdad y se actualizan so
 - Los commits siguen Conventional Commits (`<tipo>(<alcance>): <asunto>`), sin atribución a IA.
   Un evaluador debe poder reconstruir el proyecto solo mirando GitHub.
 
-### VI. Idioma de los artefactos
-Los artefactos de proyecto y la documentación se redactan en **español neutro/profesional**:
-esta constitución, las specs, los planes, las tareas y los documentos (`DECISIONES.md`,
-`README.md`).
-- Permanecen en **inglés**: los identificadores de código, los nombres de archivos y rutas, y
-  el envelope de transporte/errores de MCP (Principio IV).
-- Permanecen **textuales en español**: las reglas de negocio y los criterios de severidad del
-  enunciado.
+### VI. Idioma: código en inglés, dominio en español
+Separación clara entre la implementación (inglés) y el dominio/contrato (español).
+
+**En inglés** (implementación):
+- Identificadores de código: variables, funciones internas, clases, campos Pydantic.
+- **Claves JSON** y nombres de archivo de datos.
+- Comentarios y docstrings internos.
+- El envelope de transporte/errores de MCP (`isError`, `errorCategory`, `isRetryable`; Principio IV).
+
+**En español** (dominio y contrato — no se traducen):
+- Los **artefactos** de proyecto y documentación: esta constitución, specs, planes, tareas, `DECISIONES.md`, `README.md`.
+- El **contrato MCP agent-facing**: los nombres de las 6 herramientas (`buscar_asegurado`, `verificar_identidad`, `consultar_poliza`, `verificar_cobertura`, `abrir_reclamo`, `escalar_a_ajustador`), sus **parámetros** y sus **descripciones** (los fija el enunciado).
+- Los **valores de estado**: `cubierto ∈ {si, no, incierto}`, `severidad ∈ {leve, moderada, grave}` (cambia el nombre del campo, no el valor).
+- Las **reglas de negocio** y los criterios de severidad, textuales.
 
 ## Reglas de negocio y criterios de severidad (textual — no se negocian)
 
@@ -113,4 +119,4 @@ una línea de justificación; las enmiendas deben mantener el repositorio consis
 enunciado. Toda spec, plan y revisión verifica el cumplimiento de estos principios; cualquier
 complejidad añadida debe responder a una necesidad real o eliminarse.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-15
+**Version**: 1.2.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-15

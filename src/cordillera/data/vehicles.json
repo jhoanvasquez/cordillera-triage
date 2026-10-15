@@ -1,0 +1,8 @@
+[
+  { "id": "V-001", "plate": "FIC-01A", "make": "Marca Ficticia", "model": "Sedán", "use": "particular", "insured_id": "A-001", "policy_id": "P-001" },
+  { "id": "V-002", "plate": "FIC-02B", "make": "Marca Ficticia", "model": "Camioneta", "use": "particular", "insured_id": "A-002", "policy_id": "P-002" },
+  { "id": "V-003", "plate": "FIC-03C", "make": "Marca Ficticia", "model": "Hatchback", "use": "particular", "insured_id": "A-002", "policy_id": "P-003" },
+  { "id": "V-004", "plate": "FIC-04D", "make": "Marca Ficticia", "model": "Sedán", "use": "particular", "insured_id": "A-003", "policy_id": "P-004" },
+  { "id": "V-005", "plate": "FIC-05E", "make": "Marca Ficticia", "model": "Furgoneta", "use": "particular", "insured_id": "A-004", "policy_id": "P-005" },
+  { "id": "V-006", "plate": "FIC-06F", "make": "Marca Ficticia", "model": "Sedán", "use": "particular", "insured_id": "A-005", "policy_id": "P-006" }
+]

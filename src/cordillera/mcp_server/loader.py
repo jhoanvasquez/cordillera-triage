@@ -1,4 +1,4 @@
-"""Cargador de las fixtures JSON (solo lectura) que respaldan el servidor MCP."""
+"""JSON fixture loader (read-only) that backs the MCP server."""
 
 import json
 from functools import lru_cache
@@ -8,20 +8,20 @@ from pathlib import Path
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
 
-def _load(nombre: str) -> list[dict]:
-    return json.loads((DATA_DIR / nombre).read_text(encoding="utf-8"))
+def _load(name: str) -> list[dict]:
+    return json.loads((DATA_DIR / name).read_text(encoding="utf-8"))
 
 
 @lru_cache(maxsize=1)
-def cargar_asegurados() -> list[dict]:
-    return _load("asegurados.json")
+def load_insured() -> list[dict]:
+    return _load("insured.json")
 
 
 @lru_cache(maxsize=1)
-def cargar_vehiculos() -> list[dict]:
-    return _load("vehiculos.json")
+def load_vehicles() -> list[dict]:
+    return _load("vehicles.json")
 
 
 @lru_cache(maxsize=1)
-def cargar_polizas() -> list[dict]:
-    return _load("polizas.json")
+def load_policies() -> list[dict]:
+    return _load("policies.json")

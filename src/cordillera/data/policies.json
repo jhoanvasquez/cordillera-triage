@@ -1,0 +1,37 @@
+[
+  {
+    "id": "P-001", "number": "POL-FIC-0001", "insured_id": "A-001", "vehicle_id": "V-001",
+    "valid_from": "2026-01-01", "valid_to": "2026-12-31", "deductible": 500000,
+    "coverages": [
+      { "type": "danos", "covered": "si", "conditions": "" },
+      { "type": "grua", "covered": "si", "conditions": "" }
+    ]
+  },
+  {
+    "id": "P-002", "number": "POL-FIC-0002", "insured_id": "A-002", "vehicle_id": "V-002",
+    "valid_from": "2026-01-01", "valid_to": "2026-12-31", "deductible": 450000,
+    "coverages": [ { "type": "danos", "covered": "si", "conditions": "" } ]
+  },
+  {
+    "id": "P-003", "number": "POL-FIC-0003", "insured_id": "A-002", "vehicle_id": "V-003",
+    "valid_from": "2026-01-01", "valid_to": "2026-12-31", "deductible": 450000,
+    "coverages": [ { "type": "danos", "covered": "si", "conditions": "" } ]
+  },
+  {
+    "id": "P-004", "number": "POL-FIC-0004", "insured_id": "A-003", "vehicle_id": "V-004",
+    "valid_from": "2024-01-01", "valid_to": "2025-01-01", "deductible": 500000,
+    "coverages": [ { "type": "danos", "covered": "si", "conditions": "" } ]
+  },
+  {
+    "id": "P-005", "number": "POL-FIC-0005", "insured_id": "A-004", "vehicle_id": "V-005",
+    "valid_from": "2026-01-01", "valid_to": "2026-12-31", "deductible": 600000,
+    "coverages": [
+      { "type": "danos", "covered": "incierto", "conditions": "Vehículo de uso particular; la cobertura no aplica con claridad si el siniestro ocurrió realizando domicilios o reparto" }
+    ]
+  },
+  {
+    "id": "P-006", "number": "POL-FIC-0006", "insured_id": "A-005", "vehicle_id": "V-006",
+    "valid_from": "2026-01-01", "valid_to": "2026-12-31", "deductible": 450000,
+    "coverages": [ { "type": "danos", "covered": "si", "conditions": "" } ]
+  }
+]

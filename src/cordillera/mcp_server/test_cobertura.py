@@ -1,72 +1,72 @@
-"""Pruebas de `consultar_poliza` y `verificar_cobertura` (lógica pura + descripciones)."""
+"""Tests for `consultar_poliza` and `verificar_cobertura` (pure logic + descriptions)."""
 
 import asyncio
 
 from cordillera.mcp_server import server, service
 
-FECHA = "2026-10-10"
+DATE = "2026-10-10"
 
 
 # --- US1: consultar_poliza ---
 
 
-def test_consultar_poliza_por_placa():
-    r = service.consultar_poliza("FIC-01A")
+def test_get_policy_by_plate():
+    r = service.get_policy("FIC-01A")
     assert r.ok is True
-    assert r.poliza is not None
-    assert r.poliza.numero == "POL-FIC-0001"
-    assert any(a.tipo == "grua" and a.cubierto == "si" for a in r.poliza.amparos)
+    assert r.policy is not None
+    assert r.policy.number == "POL-FIC-0001"
+    assert any(c.type == "grua" and c.covered == "si" for c in r.policy.coverages)
 
 
-def test_consultar_poliza_placa_inexistente_es_vacio():
-    r = service.consultar_poliza("FIC-99Z")
+def test_get_policy_unknown_plate_is_empty():
+    r = service.get_policy("FIC-99Z")
     assert r.ok is True
-    assert r.poliza is None
+    assert r.policy is None
     assert r.error is None
 
 
 # --- US2: verificar_cobertura ---
 
 
-def test_cobertura_grua_si():
-    r = service.verificar_cobertura("POL-FIC-0001", "grua", FECHA)
+def test_towing_coverage_yes():
+    r = service.check_coverage("POL-FIC-0001", "grua", DATE)
     assert r.ok is True
-    assert r.cubierto == "si"
+    assert r.covered == "si"
 
 
-def test_cobertura_incierto_por_uso():
-    r = service.verificar_cobertura("POL-FIC-0005", "danos", FECHA)
+def test_uncertain_coverage_by_use():
+    r = service.check_coverage("POL-FIC-0005", "danos", DATE)
     assert r.ok is True
-    assert r.cubierto == "incierto"
-    assert "domicilio" in r.motivo.lower() or "reparto" in r.motivo.lower()
+    assert r.covered == "incierto"
+    assert "domicilio" in r.reason.lower() or "reparto" in r.reason.lower()
 
 
-def test_cobertura_poliza_vencida_es_no():
-    r = service.verificar_cobertura("POL-FIC-0004", "danos", FECHA)
+def test_expired_policy_coverage_is_no():
+    r = service.check_coverage("POL-FIC-0004", "danos", DATE)
     assert r.ok is True
-    assert r.cubierto == "no"
-    assert "vigente" in r.motivo.lower()
+    assert r.covered == "no"
+    assert "vigente" in r.reason.lower()
 
 
-def test_cobertura_amparo_no_contratado_es_no():
-    r = service.verificar_cobertura("POL-FIC-0002", "grua", FECHA)
+def test_uncovered_incident_type_is_no():
+    r = service.check_coverage("POL-FIC-0002", "grua", DATE)
     assert r.ok is True
-    assert r.cubierto == "no"
+    assert r.covered == "no"
 
 
-def test_cobertura_poliza_inexistente_es_error_business():
-    r = service.verificar_cobertura("POL-FIC-0000", "danos", FECHA)
+def test_unknown_policy_is_business_error():
+    r = service.check_coverage("POL-FIC-0000", "danos", DATE)
     assert r.ok is False
     assert r.error.errorCategory.value == "business"
 
 
-# --- US3: descripciones distintas (behavior #3) ---
+# --- US3: distinct descriptions (behavior #3) ---
 
 
-def test_descripciones_distintas_y_guia_multivehiculo():
-    herramientas = {h.name: h for h in asyncio.run(server.mcp.list_tools())}
-    d_poliza = herramientas["consultar_poliza"].description
-    d_cobertura = herramientas["verificar_cobertura"].description
-    assert d_poliza != d_cobertura
-    assert "pregunta" in d_poliza.lower()
-    assert "veh" in d_poliza.lower()
+def test_distinct_descriptions_and_multivehicle_guidance():
+    tools = {h.name: h for h in asyncio.run(server.mcp.list_tools())}
+    d_policy = tools["consultar_poliza"].description
+    d_coverage = tools["verificar_cobertura"].description
+    assert d_policy != d_coverage
+    assert "pregunta" in d_policy.lower()
+    assert "veh" in d_policy.lower()
