@@ -1,0 +1,8 @@
+[
+  { "id": "V-001", "placa": "FIC-01A", "marca": "Marca Ficticia", "modelo": "Sedán", "uso": "particular", "asegurado_id": "A-001", "poliza_id": "P-001" },
+  { "id": "V-002", "placa": "FIC-02B", "marca": "Marca Ficticia", "modelo": "Camioneta", "uso": "particular", "asegurado_id": "A-002", "poliza_id": "P-002" },
+  { "id": "V-003", "placa": "FIC-03C", "marca": "Marca Ficticia", "modelo": "Hatchback", "uso": "particular", "asegurado_id": "A-002", "poliza_id": "P-003" },
+  { "id": "V-004", "placa": "FIC-04D", "marca": "Marca Ficticia", "modelo": "Sedán", "uso": "particular", "asegurado_id": "A-003", "poliza_id": "P-004" },
+  { "id": "V-005", "placa": "FIC-05E", "marca": "Marca Ficticia", "modelo": "Furgoneta", "uso": "particular", "asegurado_id": "A-004", "poliza_id": "P-005" },
+  { "id": "V-006", "placa": "FIC-06F", "marca": "Marca Ficticia", "modelo": "Sedán", "uso": "particular", "asegurado_id": "A-005", "poliza_id": "P-006" }
+]

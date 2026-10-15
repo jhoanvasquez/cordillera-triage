@@ -1,0 +1,37 @@
+[
+  {
+    "id": "P-001", "numero": "POL-FIC-0001", "asegurado_id": "A-001", "vehiculo_id": "V-001",
+    "vigencia_desde": "2026-01-01", "vigencia_hasta": "2026-12-31", "deducible": 500000,
+    "amparos": [
+      { "tipo": "danos", "cubierto": "si", "condiciones": "" },
+      { "tipo": "grua", "cubierto": "si", "condiciones": "" }
+    ]
+  },
+  {
+    "id": "P-002", "numero": "POL-FIC-0002", "asegurado_id": "A-002", "vehiculo_id": "V-002",
+    "vigencia_desde": "2026-01-01", "vigencia_hasta": "2026-12-31", "deducible": 450000,
+    "amparos": [ { "tipo": "danos", "cubierto": "si", "condiciones": "" } ]
+  },
+  {
+    "id": "P-003", "numero": "POL-FIC-0003", "asegurado_id": "A-002", "vehiculo_id": "V-003",
+    "vigencia_desde": "2026-01-01", "vigencia_hasta": "2026-12-31", "deducible": 450000,
+    "amparos": [ { "tipo": "danos", "cubierto": "si", "condiciones": "" } ]
+  },
+  {
+    "id": "P-004", "numero": "POL-FIC-0004", "asegurado_id": "A-003", "vehiculo_id": "V-004",
+    "vigencia_desde": "2024-01-01", "vigencia_hasta": "2025-01-01", "deducible": 500000,
+    "amparos": [ { "tipo": "danos", "cubierto": "si", "condiciones": "" } ]
+  },
+  {
+    "id": "P-005", "numero": "POL-FIC-0005", "asegurado_id": "A-004", "vehiculo_id": "V-005",
+    "vigencia_desde": "2026-01-01", "vigencia_hasta": "2026-12-31", "deducible": 600000,
+    "amparos": [
+      { "tipo": "danos", "cubierto": "incierto", "condiciones": "Vehículo de uso particular; la cobertura no aplica con claridad si el siniestro ocurrió realizando domicilios o reparto" }
+    ]
+  },
+  {
+    "id": "P-006", "numero": "POL-FIC-0006", "asegurado_id": "A-005", "vehiculo_id": "V-006",
+    "vigencia_desde": "2026-01-01", "vigencia_hasta": "2026-12-31", "deducible": 450000,
+    "amparos": [ { "tipo": "danos", "cubierto": "si", "condiciones": "" } ]
+  }
+]

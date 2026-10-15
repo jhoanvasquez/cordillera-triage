@@ -27,8 +27,8 @@ description: "Lista de tareas para Fixtures de datos ficticios"
 
 **Propósito**: Inicialización mínima del proyecto para que las fixtures y su prueba existan y se ejecuten. Infra compartida creada aquí por ser el primer ticket que la necesita.
 
-- [ ] T001 Crear la estructura de paquete: `src/cordillera/__init__.py` y `src/cordillera/data/__init__.py`
-- [ ] T002 [P] Crear `pyproject.toml` mínimo en la raíz (Python 3.12, `pytest`, `ruff`; configuración de descubrimiento de tests)
+- [x] T001 Crear la estructura de paquete: `src/cordillera/__init__.py` y `src/cordillera/data/__init__.py`
+- [x] T002 [P] Crear `pyproject.toml` mínimo en la raíz (Python 3.12, `pytest`, `ruff`; configuración de descubrimiento de tests)
 
 ---
 
@@ -48,14 +48,14 @@ N/A — esta funcionalidad no tiene prerrequisitos bloqueantes más allá de la 
 
 ### Implementación de la Historia de usuario 1
 
-- [ ] T003 [US1] Crear `src/cordillera/data/asegurados.json` con los 6 asegurados del roster (A1–A5 + registro flaky `DOC-FIC-9999`): `documento` (`DOC-FIC-####`), `nombre`, `fecha_nacimiento`. A2 y A5 comparten nombre "María Gómez".
-- [ ] T004 [US1] Crear `src/cordillera/data/vehiculos.json` (placas `FIC-01A`…`FIC-06F`), `uso` (A4 = `particular`), y vínculos `asegurado_id` / `poliza_id`.
-- [ ] T005 [US1] Crear `src/cordillera/data/polizas.json` (`POL-FIC-####`): vigencias alrededor de **2026-10-10** (POL-FIC-0004 vencida hasta 2025-01-01), `deducible`, y `amparos` anidados (grúa `si` en A1; amparo con `condiciones` de uso en A4 → `incierto`).
+- [x] T003 [US1] Crear `src/cordillera/data/asegurados.json` con los 6 asegurados del roster (A1–A5 + registro flaky `DOC-FIC-9999`): `documento` (`DOC-FIC-####`), `nombre`, `fecha_nacimiento`. A2 y A5 comparten nombre "María Gómez".
+- [x] T004 [US1] Crear `src/cordillera/data/vehiculos.json` (placas `FIC-01A`…`FIC-06F`), `uso` (A4 = `particular`), y vínculos `asegurado_id` / `poliza_id`.
+- [x] T005 [US1] Crear `src/cordillera/data/polizas.json` (`POL-FIC-####`): vigencias alrededor de **2026-10-10** (POL-FIC-0004 vencida hasta 2025-01-01), `deducible`, y `amparos` anidados (grúa `si` en A1; amparo con `condiciones` de uso en A4 → `incierto`).
 
 ### Pruebas de la Historia de usuario 1
 
-- [ ] T006 [US1] Prueba `test_cobertura_casos` en `src/cordillera/data/test_fixtures.py`: cada uno de los 8 casos tiene registros con los atributos requeridos.
-- [ ] T007 [US1] Prueba `test_integridad_referencial`: cada `asegurado_id`/`poliza_id`/`vehiculo_id` resuelve a un registro existente.
+- [x] T006 [US1] Prueba `test_cobertura_casos` en `src/cordillera/data/test_fixtures.py`: cada uno de los 8 casos tiene registros con los atributos requeridos.
+- [x] T007 [US1] Prueba `test_integridad_referencial`: cada `asegurado_id`/`poliza_id`/`vehiculo_id` resuelve a un registro existente.
 
 **Punto de control**: Los datos existen y cubren los 8 casos de forma verificable.
 
@@ -69,8 +69,8 @@ N/A — esta funcionalidad no tiene prerrequisitos bloqueantes más allá de la 
 
 ### Pruebas de la Historia de usuario 2
 
-- [ ] T008 [US2] Prueba `test_formatos_ficticios`: todo `documento` ∈ `DOC-FIC-####`, `placa` ∈ `FIC-##X`, `numero` de póliza ∈ `POL-FIC-####`.
-- [ ] T009 [US2] Prueba `test_sin_datos_reales`: barrido sobre todos los `.json` de `data/` que FALLA si algún valor coincide con una forma real (cédula de 8–10 dígitos o placa de 3 letras + 3 dígitos).
+- [x] T008 [US2] Prueba `test_formatos_ficticios`: todo `documento` ∈ `DOC-FIC-####`, `placa` ∈ `FIC-##X`, `numero` de póliza ∈ `POL-FIC-####`.
+- [x] T009 [US2] Prueba `test_sin_datos_reales`: barrido sobre todos los `.json` de `data/` que FALLA si algún valor coincide con una forma real (cédula de 8–10 dígitos o placa de 3 letras + 3 dígitos).
 
 **Punto de control**: El barrido de datos reales da cero coincidencias.
 
@@ -82,8 +82,8 @@ N/A — esta funcionalidad no tiene prerrequisitos bloqueantes más allá de la 
 
 ### Pruebas de la Historia de usuario 3
 
-- [ ] T010 [US3] Prueba `test_coincidencias_multiples`: existen dos asegurados con el nombre "María Gómez" y documentos distintos.
-- [ ] T011 [US3] Prueba `test_segundo_dato_identidad`: cada asegurado tiene `fecha_nacimiento` no vacío.
+- [x] T010 [US3] Prueba `test_coincidencias_multiples`: existen dos asegurados con el nombre "María Gómez" y documentos distintos.
+- [x] T011 [US3] Prueba `test_segundo_dato_identidad`: cada asegurado tiene `fecha_nacimiento` no vacío.
 
 **Punto de control**: La búsqueda por nombre puede devolver 1 o varios; cada asegurado es verificable.
 
@@ -95,7 +95,7 @@ N/A — esta funcionalidad no tiene prerrequisitos bloqueantes más allá de la 
 
 ### Pruebas de la Historia de usuario 4
 
-- [ ] T012 [US4] Prueba `test_registro_flaky_presente`: existe el asegurado `DOC-FIC-9999` reservado para la simulación de falla transitoria.
+- [x] T012 [US4] Prueba `test_registro_flaky_presente`: existe el asegurado `DOC-FIC-9999` reservado para la simulación de falla transitoria.
 
 **Punto de control**: El registro flaky es identificable en los datos.
 
@@ -103,8 +103,8 @@ N/A — esta funcionalidad no tiene prerrequisitos bloqueantes más allá de la 
 
 ## Fase N: Pulido y aspectos transversales
 
-- [ ] T013 Ejecutar `pytest` — toda la suite colocada en verde.
-- [ ] T014 [P] Ejecutar `ruff format` y `ruff check` sobre `src/cordillera/data/`.
+- [x] T013 Ejecutar `pytest` — toda la suite colocada en verde.
+- [x] T014 [P] Ejecutar `ruff format` y `ruff check` sobre `src/cordillera/data/`.
 
 ---
 
