@@ -47,7 +47,7 @@ A4 (uso particular + domicilios) → `incierto`; cualquier cobertura en la póli
 1. **Dado** la póliza `POL-FIC-0001`, tipo `grua`, fecha `2026-10-10`, **Cuando** se verifica, **Entonces** `cubierto = si`.
 2. **Dado** la póliza `POL-FIC-0005` (A4), tipo `danos`, fecha `2026-10-10`, **Cuando** se verifica, **Entonces** `cubierto = incierto` con el motivo del uso (domicilios).
 3. **Dado** la póliza `POL-FIC-0004` (A3, vencida), cualquier tipo, fecha `2026-10-10`, **Cuando** se verifica, **Entonces** `cubierto = no` con motivo "no estaba vigente en la fecha".
-4. **Dado** una póliza inexistente, **Cuando** se verifica, **Entonces** se devuelve un error de categoría apropiada.
+4. **Dado** una póliza inexistente (número que no existe), **Cuando** se verifica, **Entonces** se devuelve un **error** de categoría `business` — NO un resultado vacío. Preguntar por la cobertura de una póliza que no existe no es "una búsqueda sin resultados": no se puede responder, por eso es error.
 
 ---
 
@@ -72,6 +72,7 @@ pregunta de cobertura". Son textualmente distintas.
 - Placa sin vehículo asociado → resultado vacío (no error).
 - Póliza sin amparo del tipo consultado → `cubierto = no` con motivo "amparo no contratado".
 - Fecha fuera de la vigencia → `cubierto = no` (prevalece sobre el estado del amparo).
+- Número de póliza inexistente en `verificar_cobertura` → **error (`business`), NO vacío** — contrasta con la consulta/búsqueda, donde vacío no es error.
 - Registro flaky (`DOC-FIC-9999` o su vehículo) → error `transient` reintentable.
 
 ## Requisitos *(obligatorio)*
@@ -86,6 +87,7 @@ pregunta de cobertura". Son textualmente distintas.
 - **FR-006**: Las descripciones de ambas herramientas DEBEN ser distintas y no solaparse; `consultar_poliza` DEBE incluir la guía de preguntar cuál vehículo cuando hay varios.
 - **FR-007**: Ambas herramientas DEBEN usar el envelope estructurado de #2 y las categorías de error.
 - **FR-008**: DEBEN existir pruebas colocadas que cubran `si` / `no` / `incierto`, póliza vencida, vacío y categorías de error.
+- **FR-009**: Si el número de póliza no existe, `verificar_cobertura` DEBE devolver un **error** (`business`), NO un resultado vacío. Contraste con FR-002: una consulta/búsqueda sin coincidencias sí es vacío-sin-error; preguntar por una póliza inexistente es un error porque no se puede responder.
 
 ### Entidades clave *(incluir si la funcionalidad involucra datos)*
 
