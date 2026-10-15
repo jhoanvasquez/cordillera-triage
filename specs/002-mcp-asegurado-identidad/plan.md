@@ -42,12 +42,17 @@ probarla sin levantar el servidor.
 
 Sin violaciones.
 
-### Punto a verificar en implementación
+### Decisión del envelope (resuelto tras verificar FastMCP)
 
-El mecanismo exacto de FastMCP para producir `isError: true` **con** `structuredContent`
-(¿`raise ToolError` vs. devolver un resultado estructurado?) se confirmará contra la versión
-instalada de `mcp`/FastMCP al implementar, y quedará **encapsulado en `errors.py`** para que las
-herramientas no dependan del detalle. Se registra la versión usada en `pyproject.toml`.
+Verificación empírica sobre `mcp<2` (FastMCP v1): una herramienta devuelve un valor
+(→ `structuredContent`, `isError:false`) **o** lanza una excepción (→ `isError:true`, texto en
+`content`, **sin** `structuredContent`). No se pueden combinar `isError:true` + `structuredContent`
+por la vía normal.
+
+**Decisión**: `isError` protocolar queda en `false` para resultados de dominio; el estado completo
+viaja en `structuredContent` con una bandera `ok`. Así los hooks (#7) leen el resultado de forma
+determinista (Principio I) y "vacío no es error" sale natural. Se pina `mcp<2` y `pydantic>=2`; la
+versión exacta queda en `uv.lock`. El armado del envelope se encapsula en `errors.py`.
 
 ## Estructura del proyecto
 
@@ -84,17 +89,20 @@ decoradores de herramienta en `server.py` — se descartó porque obliga a levan
 
 ### Envelope (inglés, compartido por todas las herramientas)
 
+`isError` protocolar siempre `false`; el estado va en `structuredContent.ok`.
+
 ```jsonc
 // Éxito (búsqueda)
 { "isError": false,
   "content": [{ "type": "text", "text": "..." }],
-  "structuredContent": { "resultados": [ ... ], "resultCount": N } }
+  "structuredContent": { "ok": true, "resultados": [ ... ], "resultCount": N } }
 
-// Error
-{ "isError": true,
+// Error de dominio
+{ "isError": false,
   "content": [{ "type": "text", "text": "..." }],
-  "structuredContent": { "errorCategory": "transient|validation|business|permissions",
-                          "isRetryable": true, "description": "..." } }
+  "structuredContent": { "ok": false,
+                         "error": { "errorCategory": "transient|validation|business|permissions",
+                                    "isRetryable": true, "description": "..." } } }
 ```
 
 ### Modelos Pydantic (dominio en español)
