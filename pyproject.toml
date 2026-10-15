@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Agente de triage de siniestros de auto para Aseguradora Cordillera (Claude Agent SDK + MCP)"
 requires-python = ">=3.12"
 dependencies = [
+    "claude-agent-sdk>=0.2.168",
     "mcp<2",
     "pydantic>=2",
 ]
@@ -16,3 +17,9 @@ pythonpath = ["src"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.17.1",
+]
