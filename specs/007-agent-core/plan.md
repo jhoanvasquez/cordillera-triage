@@ -35,7 +35,7 @@ pruebas deterministas.
 
 - **Principio I (reglas por hooks, no prompt)**: en #6 el system prompt **guía** (reglas 4 y 5, orquestación); la **imposición determinista** de reglas 1, 2 y 3 son hooks del SDK en **#7**. #6 NO pretende imponer reglas por prompt como mecanismo final — las deja explícitamente a #7 (dependencia declarada). El loop termina por la razón de parada del modelo. CUMPLE (con dependencia a #7 para el cumplimiento de negocio en producción).
 - **Principio III (SDD)**: existen `spec.md` y este `plan.md`; `tasks.md` sigue. El hook `require_spec` permite escribir en `src/**`. CUMPLE.
-- **Principio IV (estructurado)**: `registrar_triage` in-process produce salida estructurada validada (`structuredContent`), nunca texto libre. CUMPLE.
+- **Principio IV (estructurado)**: `registrar_triage` in-process produce salida estructurada validada, nunca texto libre. El `Triage` validado viaja como JSON en `content` (el bridge in-process del SDK solo reenvía `content`/`is_error` y descarta `structuredContent`); la garantía la da la validación Pydantic, no el campo de transporte. CUMPLE.
 - **Principio VI (idioma)**: identificadores/campos en inglés; system prompt y dominio en español. CUMPLE.
 
 Sin violaciones.
