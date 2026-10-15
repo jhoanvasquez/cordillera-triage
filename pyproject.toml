@@ -3,11 +3,15 @@ name = "cordillera-triage"
 version = "0.1.0"
 description = "Agente de triage de siniestros de auto para Aseguradora Cordillera (Claude Agent SDK + MCP)"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "mcp<2",
+    "pydantic>=2",
+]
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py"]
 testpaths = ["src"]
+pythonpath = ["src"]
 
 [tool.ruff]
 line-length = 100
