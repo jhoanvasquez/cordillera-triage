@@ -18,8 +18,8 @@ description: "Lista de tareas para MCP abrir_reclamo + escalar_a_ajustador"
 
 ## Fase 2: Fundacional (prerrequisitos bloqueantes)
 
-- [ ] T001 `models.py`: + `ThirdParties`, `Triage`, `EscalationCause` (enum), `Handoff`, `ClaimResponse`, `EscalationResponse` (campos inglés; valores de enum/estado en español).
-- [ ] T002 `state.py` (nuevo): `VerificationRegistry` (`mark_verified`/`is_verified`/`reset`) + `ClaimStore` (`open`→`RCL-####`); singletons de módulo, inyectables.
+- [x] T001 `models.py`: + `ThirdParties`, `Triage`, `EscalationCause` (enum), `Handoff`, `ClaimResponse`, `EscalationResponse` (campos inglés; valores de enum/estado en español).
+- [x] T002 `state.py` (nuevo): `VerificationRegistry` (`mark_verified`/`is_verified`/`reset`) + `ClaimStore` (`open`→`RCL-####`); singletons de módulo, inyectables.
 
 **Punto de control**: esquemas y estado listos.
 
@@ -29,13 +29,13 @@ description: "Lista de tareas para MCP abrir_reclamo + escalar_a_ajustador"
 
 ### Implementación
 
-- [ ] T003 [US2] `service.verify_identity`: al verificar con éxito, registra el documento en `VerificationRegistry` (param `registry` opcional; default singleton).
-- [ ] T004 [US1][US2] `service.open_claim(insured_document, policy_number, triage, *, registry, policies, store)`: regla 1a (identidad no verificada → `business`), regla 1b (póliza inexistente / no vigente en `triage.incident_date` → `business`, reutiliza vigencia de #3), éxito → `store.open` + `claim_id`.
-- [ ] T005 [US1] Registrar la herramienta `abrir_reclamo` en `server.py` (firma española → `service.open_claim` posicional).
+- [x] T003 [US2] `service.verify_identity`: al verificar con éxito, registra el documento en `VerificationRegistry` (param `registry` opcional; default singleton).
+- [x] T004 [US1][US2] `service.open_claim(insured_document, policy_number, triage, *, registry, policies, store)`: regla 1a (identidad no verificada → `business`), regla 1b (póliza inexistente / no vigente en `triage.incident_date` → `business`, reutiliza vigencia de #3), éxito → `store.open` + `claim_id`.
+- [x] T005 [US1] Registrar la herramienta `abrir_reclamo` en `server.py` (firma española → `service.open_claim` posicional).
 
 ### Pruebas
 
-- [ ] T006 [US1][US2] `test_claims.py`: identidad verificada + póliza vigente → `ok` con `claim_id`; sin identidad → `business`; póliza no vigente en la fecha → `business`. Usa un `VerificationRegistry`/`ClaimStore` frescos (aislamiento).
+- [x] T006 [US1][US2] `test_claims.py`: identidad verificada + póliza vigente → `ok` con `claim_id`; sin identidad → `business`; póliza no vigente en la fecha → `business`. Usa un `VerificationRegistry`/`ClaimStore` frescos (aislamiento).
 
 **Punto de control**: `abrir_reclamo` abre solo si se cumple la regla 1 completa.
 
@@ -45,11 +45,11 @@ description: "Lista de tareas para MCP abrir_reclamo + escalar_a_ajustador"
 
 ### Implementación
 
-- [ ] T007 [US3] `service.escalate_to_adjuster(handoff, *, store)` + registrar la herramienta `escalar_a_ajustador` en `server.py`.
+- [x] T007 [US3] `service.escalate_to_adjuster(handoff, *, store)` + registrar la herramienta `escalar_a_ajustador` en `server.py`.
 
 ### Pruebas
 
-- [ ] T008 [US3] `test_claims.py`: handoff completo válido → `ok` con `escalation_id` + `priority`; handoff con causa fuera del enum / campos faltantes → rechazado por el esquema (Pydantic).
+- [x] T008 [US3] `test_claims.py`: handoff completo válido → `ok` con `escalation_id` + `priority`; handoff con causa fuera del enum / campos faltantes → rechazado por el esquema (Pydantic).
 
 **Punto de control**: el handoff válido se registra; el inválido se rechaza.
 
@@ -57,8 +57,8 @@ description: "Lista de tareas para MCP abrir_reclamo + escalar_a_ajustador"
 
 ## Fase N: Pulido
 
-- [ ] T009 Ejecutar `pytest` — toda la suite en verde.
-- [ ] T010 [P] `ruff format` + `ruff check` sobre `src/`.
+- [x] T009 Ejecutar `pytest` — toda la suite en verde.
+- [x] T010 [P] `ruff format` + `ruff check` sobre `src/`.
 
 ---
 
