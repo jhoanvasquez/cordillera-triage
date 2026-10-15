@@ -1,0 +1,13 @@
+# Normalize line endings. Scripts stay LF so bash doesn't choke on CRLF.
+* text=auto eol=lf
+
+*.sh    text eol=lf
+*.py    text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+
+# Windows-only scripts keep CRLF
+*.cmd   text eol=crlf
+*.bat   text eol=crlf
