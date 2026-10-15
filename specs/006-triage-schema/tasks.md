@@ -18,7 +18,7 @@ description: "Lista de tareas para esquema de triage + registrar_triage"
 
 ## Fase 1: Configuración
 
-- [ ] T001 Crear el paquete `src/cordillera/agent/` con `__init__.py`.
+- [x] T001 Crear el paquete `src/cordillera/agent/` con `__init__.py`.
 
 ---
 
@@ -26,7 +26,7 @@ description: "Lista de tareas para esquema de triage + registrar_triage"
 
 ### Pruebas (el esquema ya existe en #4; se confirma su contrato)
 
-- [ ] T002 [US1] `agent/test_triage.py`: datos parciales → campos no provistos quedan `None`, listas vacías; `severity` inválida → `ValidationError`; `claim_type` libre acepta cualquier string; `missing_data` funciona.
+- [x] T002 [US1] `agent/test_triage.py`: datos parciales → campos no provistos quedan `None`, listas vacías; `severity` inválida → `ValidationError`; `claim_type` libre acepta cualquier string; `missing_data` funciona.
 
 **Punto de control**: el esquema cumple el contrato (nulabilidad, severidad cerrada, claim_type libre).
 
@@ -36,11 +36,11 @@ description: "Lista de tareas para esquema de triage + registrar_triage"
 
 ### Implementación
 
-- [ ] T003 [US2] `agent/triage.py`: `TriageResult` (ok/triage/error, reutiliza `ErrorInfo`) + `registrar_triage(data)` que valida con Pydantic (éxito → Triage; `ValidationError` → error `validation`).
+- [x] T003 [US2] `agent/triage.py`: `TriageResult` (ok/triage/error, reutiliza `ErrorInfo`) + `registrar_triage(data)` que valida con Pydantic (éxito → Triage; `ValidationError` → error `validation`).
 
 ### Pruebas
 
-- [ ] T004 [US2] `agent/test_triage.py`: `registrar_triage` con datos válidos → `ok` con `Triage`; con severidad inválida → `ok=False` con error `validation`.
+- [x] T004 [US2] `agent/test_triage.py`: `registrar_triage` con datos válidos → `ok` con `Triage`; con severidad inválida → `ok=False` con error `validation`.
 
 **Punto de control**: `registrar_triage` produce triage validado o un error estructurado.
 
@@ -48,8 +48,8 @@ description: "Lista de tareas para esquema de triage + registrar_triage"
 
 ## Fase N: Pulido
 
-- [ ] T005 Ejecutar `pytest` — toda la suite en verde.
-- [ ] T006 [P] `ruff format` + `ruff check` sobre `src/`.
+- [x] T005 Ejecutar `pytest` — toda la suite en verde.
+- [x] T006 [P] `ruff format` + `ruff check` sobre `src/`.
 
 ---
 
