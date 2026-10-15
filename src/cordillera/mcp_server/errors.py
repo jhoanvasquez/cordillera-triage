@@ -1,9 +1,9 @@
-"""Envelope de error estructurado, compartido por todas las herramientas MCP.
+"""Structured error envelope shared by all MCP tools.
 
-Decisión (ver plan 002): FastMCP v1 no permite `isError: true` junto con
-`structuredContent`. Por eso el estado de dominio viaja siempre en `structuredContent`
-con una bandera `ok`; `errorCategory`/`isRetryable` quedan legibles para los hooks (#7).
-Las claves del envelope van en inglés (capa de transporte); los valores de dominio, en español.
+Decision (see plan 002): FastMCP v1 does not allow `isError: true` alongside
+`structuredContent`. Therefore domain state always travels in `structuredContent`
+with an `ok` flag; `errorCategory`/`isRetryable` remain readable for hooks (#7).
+Envelope keys are in English (transport layer); domain values stay in Spanish.
 """
 
 from enum import Enum
@@ -11,8 +11,8 @@ from enum import Enum
 from pydantic import BaseModel
 
 
-class CategoriaError(str, Enum):
-    """Categorías de error del enunciado (behavior #4)."""
+class ErrorCategory(str, Enum):
+    """Error categories from the spec (behavior #4)."""
 
     TRANSIENT = "transient"
     VALIDATION = "validation"
@@ -20,22 +20,22 @@ class CategoriaError(str, Enum):
     PERMISSIONS = "permissions"
 
 
-# Solo los errores transitorios se reintentan.
-_REINTENTABLES = {CategoriaError.TRANSIENT}
+# Only transient errors are retryable.
+_RETRYABLE = {ErrorCategory.TRANSIENT}
 
 
 class ErrorInfo(BaseModel):
-    """Descriptor de error que viaja dentro del envelope."""
+    """Error descriptor carried inside the envelope."""
 
-    errorCategory: CategoriaError
+    errorCategory: ErrorCategory
     isRetryable: bool
     description: str
 
 
-def error_info(categoria: CategoriaError, description: str) -> ErrorInfo:
-    """Construye un ErrorInfo con el `isRetryable` derivado de la categoría."""
+def error_info(category: ErrorCategory, description: str) -> ErrorInfo:
+    """Build an ErrorInfo with `isRetryable` derived from the category."""
     return ErrorInfo(
-        errorCategory=categoria,
-        isRetryable=categoria in _REINTENTABLES,
+        errorCategory=category,
+        isRetryable=category in _RETRYABLE,
         description=description,
     )

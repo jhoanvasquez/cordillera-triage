@@ -1,218 +1,215 @@
-"""Lógica pura de las herramientas MCP.
+"""Pure business logic for the MCP tools.
 
-Separada de la capa FastMCP (`server.py`) para poder probarla sin levantar el servidor.
-Las funciones aceptan los datos por parámetro (inyectables en tests) y, si no se pasan,
-los cargan desde las fixtures.
+Separated from the FastMCP layer (`server.py`) so it can be tested without
+starting the server. Functions accept data as parameters (injectable in tests)
+and fall back to loading from fixtures when not provided.
 """
 
 from typing import Literal
 
 from . import loader
-from .errors import CategoriaError, error_info
+from .errors import ErrorCategory, error_info
 from .models import (
-    AmparoDetalle,
-    AseguradoResumen,
-    PolizaDetalle,
-    RespuestaBusqueda,
-    RespuestaCobertura,
-    RespuestaPoliza,
-    RespuestaVerificacion,
+    CoverageDetail,
+    CoverageResponse,
+    InsuredSummary,
+    PolicyDetail,
+    PolicyResponse,
+    SearchResponse,
+    VerificationResponse,
 )
 
-# Registro reservado para simular una falla transitoria (ver fixtures #1, caso #7).
-DOCUMENTO_FLAKY = "DOC-FIC-9999"
+# Reserved record used to simulate a transient failure (see fixtures #1, case #7).
+FLAKY_DOCUMENT = "DOC-FIC-9999"
 
-PorCriterio = Literal["documento", "nombre", "placa"]
+SearchField = Literal["documento", "nombre", "placa"]
 
 
-def _coincidencias(
-    asegurados: list[dict], vehiculos: list[dict], criterio: str, por: PorCriterio | None
+def _matches(
+    insured: list[dict], vehicles: list[dict], query: str, by: SearchField | None
 ) -> list[dict]:
-    c = criterio.lower()
-    if por == "documento":
-        return [a for a in asegurados if a["documento"] == criterio]
-    if por == "nombre":
-        return [a for a in asegurados if c in a["nombre"].lower()]
-    if por == "placa":
-        ids = {v["asegurado_id"] for v in vehiculos if v["placa"] == criterio}
-        return [a for a in asegurados if a["id"] in ids]
+    q = query.lower()
+    if by == "documento":
+        return [a for a in insured if a["document"] == query]
+    if by == "nombre":
+        return [a for a in insured if q in a["name"].lower()]
+    if by == "placa":
+        ids = {v["insured_id"] for v in vehicles if v["plate"] == query}
+        return [a for a in insured if a["id"] in ids]
 
-    # Sin `por`: intenta documento, nombre y placa; deduplica por id conservando orden.
-    por_id = {a["id"]: a for a in asegurados}
-    encontrados: dict[str, dict] = {}
-    for a in asegurados:
-        if a["documento"] == criterio or c in a["nombre"].lower():
-            encontrados[a["id"]] = a
-    for v in vehiculos:
-        if v["placa"] == criterio and v["asegurado_id"] in por_id:
-            encontrados[v["asegurado_id"]] = por_id[v["asegurado_id"]]
-    return list(encontrados.values())
+    # No `by`: try document, name, and plate; deduplicate by id preserving order.
+    by_id = {a["id"]: a for a in insured}
+    found: dict[str, dict] = {}
+    for a in insured:
+        if a["document"] == query or q in a["name"].lower():
+            found[a["id"]] = a
+    for v in vehicles:
+        if v["plate"] == query and v["insured_id"] in by_id:
+            found[v["insured_id"]] = by_id[v["insured_id"]]
+    return list(found.values())
 
 
-def buscar_asegurado(
-    criterio: str,
-    por: PorCriterio | None = None,
+def search_insured(
+    query: str,
+    by: SearchField | None = None,
     *,
-    asegurados: list[dict] | None = None,
-    vehiculos: list[dict] | None = None,
-) -> RespuestaBusqueda:
-    """Busca asegurados por documento, nombre o placa. Puede devolver varias coincidencias."""
-    asegurados = asegurados if asegurados is not None else loader.cargar_asegurados()
-    vehiculos = vehiculos if vehiculos is not None else loader.cargar_vehiculos()
+    insured: list[dict] | None = None,
+    vehicles: list[dict] | None = None,
+) -> SearchResponse:
+    """Search insured persons by document, name, or plate. May return multiple matches."""
+    insured = insured if insured is not None else loader.load_insured()
+    vehicles = vehicles if vehicles is not None else loader.load_vehicles()
 
-    if not criterio or not criterio.strip():
-        return RespuestaBusqueda(
+    if not query or not query.strip():
+        return SearchResponse(
             ok=False,
             error=error_info(
-                CategoriaError.VALIDATION, "El criterio de búsqueda no puede estar vacío."
+                ErrorCategory.VALIDATION, "El criterio de búsqueda no puede estar vacío."
             ),
         )
-    criterio = criterio.strip()
+    query = query.strip()
 
-    if criterio == DOCUMENTO_FLAKY:
-        return RespuestaBusqueda(
+    if query == FLAKY_DOCUMENT:
+        return SearchResponse(
             ok=False,
             error=error_info(
-                CategoriaError.TRANSIENT,
+                ErrorCategory.TRANSIENT,
                 "Tiempo de espera agotado consultando el core de la aseguradora.",
             ),
         )
 
-    coincidencias = _coincidencias(asegurados, vehiculos, criterio, por)
-    resultados = [
-        AseguradoResumen(id=a["id"], documento=a["documento"], nombre=a["nombre"])
-        for a in coincidencias
-    ]
-    return RespuestaBusqueda(ok=True, resultados=resultados, resultCount=len(resultados))
+    matches = _matches(insured, vehicles, query, by)
+    results = [InsuredSummary(id=a["id"], document=a["document"], name=a["name"]) for a in matches]
+    return SearchResponse(ok=True, results=results, resultCount=len(results))
 
 
-def verificar_identidad(
-    documento: str,
-    fecha_nacimiento: str,
+def verify_identity(
+    document: str,
+    birth_date: str,
     *,
-    asegurados: list[dict] | None = None,
-) -> RespuestaVerificacion:
-    """Confirma la identidad con un segundo dato. Solo reporta; la regla 1 la aplica el hook."""
-    asegurados = asegurados if asegurados is not None else loader.cargar_asegurados()
+    insured: list[dict] | None = None,
+) -> VerificationResponse:
+    """Confirm identity with a second data point. Only reports; rule 1 is applied by the hook."""
+    insured = insured if insured is not None else loader.load_insured()
 
-    if not documento or not fecha_nacimiento:
-        return RespuestaVerificacion(
+    if not document or not birth_date:
+        return VerificationResponse(
             ok=False,
             error=error_info(
-                CategoriaError.VALIDATION, "Documento y fecha de nacimiento son obligatorios."
+                ErrorCategory.VALIDATION, "Documento y fecha de nacimiento son obligatorios."
             ),
         )
 
-    if documento == DOCUMENTO_FLAKY:
-        return RespuestaVerificacion(
+    if document == FLAKY_DOCUMENT:
+        return VerificationResponse(
             ok=False,
             error=error_info(
-                CategoriaError.TRANSIENT,
+                ErrorCategory.TRANSIENT,
                 "Tiempo de espera agotado consultando el core de la aseguradora.",
             ),
         )
 
-    aseg = next((a for a in asegurados if a["documento"] == documento), None)
-    if aseg is None:
-        return RespuestaVerificacion(
+    record = next((a for a in insured if a["document"] == document), None)
+    if record is None:
+        return VerificationResponse(
             ok=False,
-            error=error_info(CategoriaError.BUSINESS, "No existe un asegurado con ese documento."),
+            error=error_info(ErrorCategory.BUSINESS, "No existe un asegurado con ese documento."),
         )
 
-    verificado = aseg["fecha_nacimiento"] == fecha_nacimiento
-    return RespuestaVerificacion(
+    verified = record["birth_date"] == birth_date
+    return VerificationResponse(
         ok=True,
-        verificado=verificado,
-        asegurado_id=aseg["id"] if verificado else None,
+        verified=verified,
+        insured_id=record["id"] if verified else None,
     )
 
 
-def consultar_poliza(
-    placa: str,
+def get_policy(
+    plate: str,
     *,
-    vehiculos: list[dict] | None = None,
-    polizas: list[dict] | None = None,
-) -> RespuestaPoliza:
-    """Devuelve la póliza completa del vehículo identificado por placa."""
-    vehiculos = vehiculos if vehiculos is not None else loader.cargar_vehiculos()
-    polizas = polizas if polizas is not None else loader.cargar_polizas()
+    vehicles: list[dict] | None = None,
+    policies: list[dict] | None = None,
+) -> PolicyResponse:
+    """Return the full policy for the vehicle identified by plate."""
+    vehicles = vehicles if vehicles is not None else loader.load_vehicles()
+    policies = policies if policies is not None else loader.load_policies()
 
-    if not placa or not placa.strip():
-        return RespuestaPoliza(
+    if not plate or not plate.strip():
+        return PolicyResponse(
             ok=False,
-            error=error_info(CategoriaError.VALIDATION, "La placa no puede estar vacía."),
+            error=error_info(ErrorCategory.VALIDATION, "La placa no puede estar vacía."),
         )
-    placa = placa.strip()
+    plate = plate.strip()
 
-    veh = next((v for v in vehiculos if v["placa"] == placa), None)
+    veh = next((v for v in vehicles if v["plate"] == plate), None)
     if veh is None:
-        return RespuestaPoliza(ok=True, poliza=None)  # vacío, no es error
+        return PolicyResponse(ok=True, policy=None)  # empty result, not an error
 
-    pol = next((p for p in polizas if p["id"] == veh["poliza_id"]), None)
+    pol = next((p for p in policies if p["id"] == veh["policy_id"]), None)
     if pol is None:
-        return RespuestaPoliza(ok=True, poliza=None)
+        return PolicyResponse(ok=True, policy=None)
 
-    poliza = PolizaDetalle(
+    policy = PolicyDetail(
         id=pol["id"],
-        numero=pol["numero"],
-        asegurado_id=pol["asegurado_id"],
-        vehiculo_id=pol["vehiculo_id"],
-        vigencia_desde=pol["vigencia_desde"],
-        vigencia_hasta=pol["vigencia_hasta"],
-        deducible=pol["deducible"],
-        amparos=[AmparoDetalle(**a) for a in pol["amparos"]],
+        number=pol["number"],
+        insured_id=pol["insured_id"],
+        vehicle_id=pol["vehicle_id"],
+        valid_from=pol["valid_from"],
+        valid_to=pol["valid_to"],
+        deductible=pol["deductible"],
+        coverages=[CoverageDetail(**c) for c in pol["coverages"]],
     )
-    return RespuestaPoliza(ok=True, poliza=poliza)
+    return PolicyResponse(ok=True, policy=policy)
 
 
-def verificar_cobertura(
-    numero_poliza: str,
-    tipo: str,
-    fecha: str,
+def check_coverage(
+    policy_number: str,
+    coverage_type: str,
+    date: str,
     *,
-    polizas: list[dict] | None = None,
-) -> RespuestaCobertura:
-    """Responde si el tipo de siniestro está cubierto por la póliza en la fecha dada."""
-    polizas = polizas if polizas is not None else loader.cargar_polizas()
+    policies: list[dict] | None = None,
+) -> CoverageResponse:
+    """Answer whether the incident type is covered by the policy on the given date."""
+    policies = policies if policies is not None else loader.load_policies()
 
-    if not numero_poliza or not tipo or not fecha:
-        return RespuestaCobertura(
+    if not policy_number or not coverage_type or not date:
+        return CoverageResponse(
             ok=False,
             error=error_info(
-                CategoriaError.VALIDATION, "numero_poliza, tipo y fecha son obligatorios."
+                ErrorCategory.VALIDATION, "numero_poliza, tipo y fecha son obligatorios."
             ),
         )
 
-    pol = next((p for p in polizas if p["numero"] == numero_poliza), None)
+    pol = next((p for p in policies if p["number"] == policy_number), None)
     if pol is None:
-        # Preguntar por una póliza inexistente no es "vacío": es un error (FR-009).
-        return RespuestaCobertura(
+        # Querying a non-existent policy is not "empty": it is an error (FR-009).
+        return CoverageResponse(
             ok=False,
-            error=error_info(CategoriaError.BUSINESS, "No existe una póliza con ese número."),
+            error=error_info(ErrorCategory.BUSINESS, "No existe una póliza con ese número."),
         )
 
-    # La vigencia prevalece sobre el estado del amparo.
-    if not (pol["vigencia_desde"] <= fecha <= pol["vigencia_hasta"]):
-        return RespuestaCobertura(
+    # Policy validity takes precedence over coverage status.
+    if not (pol["valid_from"] <= date <= pol["valid_to"]):
+        return CoverageResponse(
             ok=True,
-            cubierto="no",
-            motivo="La póliza no estaba vigente en la fecha del siniestro.",
-            deducible=pol["deducible"],
+            covered="no",
+            reason="La póliza no estaba vigente en la fecha del siniestro.",
+            deductible=pol["deductible"],
         )
 
-    amparo = next((a for a in pol["amparos"] if a["tipo"] == tipo), None)
-    if amparo is None:
-        return RespuestaCobertura(
+    coverage = next((c for c in pol["coverages"] if c["type"] == coverage_type), None)
+    if coverage is None:
+        return CoverageResponse(
             ok=True,
-            cubierto="no",
-            motivo=f"El amparo '{tipo}' no está contratado en la póliza.",
-            deducible=pol["deducible"],
+            covered="no",
+            reason=f"El amparo '{coverage_type}' no está contratado en la póliza.",
+            deductible=pol["deductible"],
         )
 
-    motivo = amparo.get("condiciones") or f"Amparo '{tipo}': {amparo['cubierto']}."
-    return RespuestaCobertura(
+    reason = coverage.get("conditions") or f"Amparo '{coverage_type}': {coverage['covered']}."
+    return CoverageResponse(
         ok=True,
-        cubierto=amparo["cubierto"],
-        motivo=motivo,
-        deducible=pol["deducible"],
+        covered=coverage["covered"],
+        reason=reason,
+        deductible=pol["deductible"],
     )

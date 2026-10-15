@@ -1,77 +1,77 @@
-"""Pruebas de la lógica pura de las herramientas (sin levantar MCP)."""
+"""Tests for the pure tool logic (without starting MCP)."""
 
 from cordillera.mcp_server import service
 
-# --- US1: localizar al asegurado ---
+# --- US1: locate the insured ---
 
 
-def test_busqueda_unica_por_documento():
-    r = service.buscar_asegurado("DOC-FIC-0001", "documento")
+def test_single_search_by_document():
+    r = service.search_insured("DOC-FIC-0001", "documento")
     assert r.ok is True
     assert r.resultCount == 1
-    assert r.resultados[0].documento == "DOC-FIC-0001"
+    assert r.results[0].document == "DOC-FIC-0001"
 
 
-def test_resumen_no_filtra_fecha_nacimiento():
-    r = service.buscar_asegurado("DOC-FIC-0001", "documento")
-    assert not hasattr(r.resultados[0], "fecha_nacimiento")
+def test_summary_does_not_expose_birth_date():
+    r = service.search_insured("DOC-FIC-0001", "documento")
+    assert not hasattr(r.results[0], "birth_date")
 
 
-def test_busqueda_multiple_por_nombre():
-    r = service.buscar_asegurado("María Gómez", "nombre")
+def test_multiple_results_by_name():
+    r = service.search_insured("María Gómez", "nombre")
     assert r.ok is True
     assert r.resultCount >= 2
 
 
-def test_busqueda_por_placa():
-    r = service.buscar_asegurado("FIC-01A", "placa")
+def test_search_by_plate():
+    r = service.search_insured("FIC-01A", "placa")
     assert r.ok is True
     assert r.resultCount == 1
-    assert r.resultados[0].id == "A-001"
+    assert r.results[0].id == "A-001"
 
 
-# --- US3: errores estructurados y vacío ---
+# --- US3: structured errors and empty results ---
 
 
-def test_busqueda_vacia_no_es_error():
-    r = service.buscar_asegurado("DOC-FIC-0000-INEXISTENTE", "documento")
+def test_empty_result_is_not_an_error():
+    r = service.search_insured("DOC-FIC-0000-INEXISTENTE", "documento")
     assert r.ok is True
     assert r.resultCount == 0
     assert r.error is None
 
 
-def test_criterio_vacio_es_validation():
-    r = service.buscar_asegurado("   ", None)
+def test_blank_query_is_validation_error():
+    r = service.search_insured("   ", None)
     assert r.ok is False
     assert r.error.errorCategory.value == "validation"
     assert r.error.isRetryable is False
 
 
-def test_registro_flaky_es_transient():
-    r = service.buscar_asegurado("DOC-FIC-9999", "documento")
+def test_flaky_record_is_transient_error():
+    r = service.search_insured("DOC-FIC-9999", "documento")
     assert r.ok is False
     assert r.error.errorCategory.value == "transient"
     assert r.error.isRetryable is True
 
 
-# --- US2: verificar identidad ---
+# --- US2: verify identity ---
 
 
-def test_identidad_correcta():
-    r = service.verificar_identidad("DOC-FIC-0001", "1985-03-12")
+def test_correct_identity():
+    r = service.verify_identity("DOC-FIC-0001", "1985-03-12")
     assert r.ok is True
-    assert r.verificado is True
-    assert r.asegurado_id == "A-001"
+    assert r.verified is True
+    assert r.insured_id == "A-001"
 
 
-def test_identidad_incorrecta():
-    r = service.verificar_identidad("DOC-FIC-0001", "2000-01-01")
+def test_incorrect_identity():
+    r = service.verify_identity("DOC-FIC-0001", "2000-01-01")
     assert r.ok is True
-    assert r.verificado is False
-    assert r.asegurado_id is None
+    assert r.verified is False
+    assert r.insured_id is None
 
 
-def test_identidad_documento_inexistente():
-    r = service.verificar_identidad("DOC-FIC-7777", "1985-03-12")
+def test_identity_unknown_document():
+    r = service.verify_identity("DOC-FIC-7777", "1985-03-12")
     assert r.ok is False
     assert r.error.errorCategory.value == "business"

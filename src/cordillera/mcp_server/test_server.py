@@ -1,11 +1,11 @@
-"""Prueba ligera del servidor: las dos herramientas quedan registradas en FastMCP."""
+"""Light server test: all tools are registered in FastMCP with their Spanish names."""
 
 import asyncio
 
 from cordillera.mcp_server import server
 
 
-def test_herramientas_registradas():
-    herramientas = asyncio.run(server.mcp.list_tools())
-    nombres = {h.name for h in herramientas}
-    assert {"buscar_asegurado", "verificar_identidad"} <= nombres
+def test_tools_registered():
+    tools = asyncio.run(server.mcp.list_tools())
+    names = {h.name for h in tools}
+    assert {"buscar_asegurado", "verificar_identidad"} <= names

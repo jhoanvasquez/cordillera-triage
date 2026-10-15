@@ -1,6 +1,6 @@
-"""Pruebas deterministas de los fixtures: formatos ficticios, integridad y cobertura.
+"""Deterministic fixture tests: fictional formats, integrity, and coverage.
 
-No requieren modelo ni servidor: validan solo los datos (necesidad #3 del enunciado).
+No model or server required: validates data only (requirement #3 of the spec).
 """
 
 import json
@@ -8,107 +8,107 @@ import re
 from pathlib import Path
 
 DATA_DIR = Path(__file__).parent
-FECHA_SINIESTRO = "2026-10-10"  # fecha de referencia del escenario (ver plan.md)
+INCIDENT_DATE = "2026-10-10"  # reference date for the scenario (see plan.md)
 
 
-def _load(nombre: str) -> list[dict]:
-    return json.loads((DATA_DIR / nombre).read_text(encoding="utf-8"))
+def _load(name: str) -> list[dict]:
+    return json.loads((DATA_DIR / name).read_text(encoding="utf-8"))
 
 
-ASEGURADOS = _load("asegurados.json")
-VEHICULOS = _load("vehiculos.json")
-POLIZAS = _load("polizas.json")
+INSURED = _load("insured.json")
+VEHICLES = _load("vehicles.json")
+POLICIES = _load("policies.json")
 
 
-def _poliza_vigente(poliza: dict, fecha: str) -> bool:
-    return poliza["vigencia_desde"] <= fecha <= poliza["vigencia_hasta"]
+def _policy_active(policy: dict, date: str) -> bool:
+    return policy["valid_from"] <= date <= policy["valid_to"]
 
 
-# --- Historia de usuario 1: integridad y cobertura de los 8 casos ---
+# --- User story 1: integrity and coverage of the 8 cases ---
 
 
-def test_integridad_referencial():
-    ids_aseg = {a["id"] for a in ASEGURADOS}
-    ids_veh = {v["id"] for v in VEHICULOS}
-    ids_pol = {p["id"] for p in POLIZAS}
-    for v in VEHICULOS:
-        assert v["asegurado_id"] in ids_aseg, v
-        assert v["poliza_id"] in ids_pol, v
-    for p in POLIZAS:
-        assert p["asegurado_id"] in ids_aseg, p
-        assert p["vehiculo_id"] in ids_veh, p
+def test_referential_integrity():
+    insured_ids = {a["id"] for a in INSURED}
+    vehicle_ids = {v["id"] for v in VEHICLES}
+    policy_ids = {p["id"] for p in POLICIES}
+    for v in VEHICLES:
+        assert v["insured_id"] in insured_ids, v
+        assert v["policy_id"] in policy_ids, v
+    for p in POLICIES:
+        assert p["insured_id"] in insured_ids, p
+        assert p["vehicle_id"] in vehicle_ids, p
 
 
-def test_cobertura_casos():
-    # Casos 1 y 2: A-001 con póliza vigente y amparo de grúa.
-    p1 = next(p for p in POLIZAS if p["asegurado_id"] == "A-001")
-    assert _poliza_vigente(p1, FECHA_SINIESTRO)
-    assert any(a["tipo"] == "grua" and a["cubierto"] == "si" for a in p1["amparos"])
+def test_coverage_cases():
+    # Cases 1 and 2: A-001 with active policy and towing coverage.
+    p1 = next(p for p in POLICIES if p["insured_id"] == "A-001")
+    assert _policy_active(p1, INCIDENT_DATE)
+    assert any(c["type"] == "grua" and c["covered"] == "si" for c in p1["coverages"])
 
-    # Caso 4: A-002 con dos vehículos, ambos con póliza vigente.
-    veh_a2 = [v for v in VEHICULOS if v["asegurado_id"] == "A-002"]
+    # Case 4: A-002 with two vehicles, both with active policies.
+    veh_a2 = [v for v in VEHICLES if v["insured_id"] == "A-002"]
     assert len(veh_a2) == 2
     for v in veh_a2:
-        p = next(p for p in POLIZAS if p["id"] == v["poliza_id"])
-        assert _poliza_vigente(p, FECHA_SINIESTRO)
+        p = next(p for p in POLICIES if p["id"] == v["policy_id"])
+        assert _policy_active(p, INCIDENT_DATE)
 
-    # Caso 5: A-003 con póliza vencida en la fecha del siniestro.
-    p_a3 = next(p for p in POLIZAS if p["asegurado_id"] == "A-003")
-    assert not _poliza_vigente(p_a3, FECHA_SINIESTRO)
+    # Case 5: A-003 with expired policy on the incident date.
+    p_a3 = next(p for p in POLICIES if p["insured_id"] == "A-003")
+    assert not _policy_active(p_a3, INCIDENT_DATE)
 
-    # Caso 8: A-004 uso particular con amparo incierto (domicilios).
-    v_a4 = next(v for v in VEHICULOS if v["asegurado_id"] == "A-004")
-    assert v_a4["uso"] == "particular"
-    p_a4 = next(p for p in POLIZAS if p["asegurado_id"] == "A-004")
-    assert any(a["cubierto"] == "incierto" for a in p_a4["amparos"])
+    # Case 8: A-004 personal use with uncertain coverage (delivery services).
+    v_a4 = next(v for v in VEHICLES if v["insured_id"] == "A-004")
+    assert v_a4["use"] == "particular"
+    p_a4 = next(p for p in POLICIES if p["insured_id"] == "A-004")
+    assert any(c["covered"] == "incierto" for c in p_a4["coverages"])
 
 
-# --- Historia de usuario 2: datos inequívocamente ficticios ---
+# --- User story 2: unambiguously fictional data ---
 
 RE_DOC = re.compile(r"^DOC-FIC-\d{4}$")
-RE_PLACA = re.compile(r"^FIC-\d{2}[A-Z]$")
+RE_PLATE = re.compile(r"^FIC-\d{2}[A-Z]$")
 RE_POL = re.compile(r"^POL-FIC-\d{4}$")
 
 
-def test_formatos_ficticios():
-    for a in ASEGURADOS:
-        assert RE_DOC.match(a["documento"]), a["documento"]
-    for v in VEHICULOS:
-        assert RE_PLACA.match(v["placa"]), v["placa"]
-    for p in POLIZAS:
-        assert RE_POL.match(p["numero"]), p["numero"]
+def test_fictional_formats():
+    for a in INSURED:
+        assert RE_DOC.match(a["document"]), a["document"]
+    for v in VEHICLES:
+        assert RE_PLATE.match(v["plate"]), v["plate"]
+    for p in POLICIES:
+        assert RE_POL.match(p["number"]), p["number"]
 
 
-# Formas reales colombianas que NINGÚN valor puede tener.
-RE_CEDULA_REAL = re.compile(r"\b\d{8,10}\b")
-RE_PLACA_REAL = re.compile(r"\b[A-Z]{3}\d{3}\b")
+# Real Colombian formats that NO value may have.
+RE_REAL_ID = re.compile(r"\b\d{8,10}\b")
+RE_REAL_PLATE = re.compile(r"\b[A-Z]{3}\d{3}\b")
 
 
-def test_sin_datos_reales():
-    for nombre in ("asegurados.json", "vehiculos.json", "polizas.json"):
-        texto = (DATA_DIR / nombre).read_text(encoding="utf-8")
-        assert not RE_CEDULA_REAL.search(texto), f"posible cédula real en {nombre}"
-        assert not RE_PLACA_REAL.search(texto), f"posible placa real en {nombre}"
+def test_no_real_data():
+    for name in ("insured.json", "vehicles.json", "policies.json"):
+        text = (DATA_DIR / name).read_text(encoding="utf-8")
+        assert not RE_REAL_ID.search(text), f"possible real ID number in {name}"
+        assert not RE_REAL_PLATE.search(text), f"possible real plate in {name}"
 
 
-# --- Historia de usuario 3: búsqueda y verificación de identidad ---
+# --- User story 3: search and identity verification ---
 
 
-def test_coincidencias_multiples():
-    marias = [a for a in ASEGURADOS if a["nombre"] == "María Gómez"]
+def test_multiple_matches():
+    marias = [a for a in INSURED if a["name"] == "María Gómez"]
     assert len(marias) >= 2
-    assert len({a["documento"] for a in marias}) == len(marias)
+    assert len({a["document"] for a in marias}) == len(marias)
 
 
-def test_segundo_dato_identidad():
-    for a in ASEGURADOS:
-        assert a.get("fecha_nacimiento")
+def test_second_identity_field():
+    for a in INSURED:
+        assert a.get("birth_date")
 
 
-# --- Historia de usuario 4: falla transitoria ---
+# --- User story 4: transient failure ---
 
 
-def test_registro_flaky_presente():
-    flaky = [a for a in ASEGURADOS if a["documento"] == "DOC-FIC-9999"]
+def test_flaky_record_present():
+    flaky = [a for a in INSURED if a["document"] == "DOC-FIC-9999"]
     assert len(flaky) == 1
     assert flaky[0].get("flaky") is True
