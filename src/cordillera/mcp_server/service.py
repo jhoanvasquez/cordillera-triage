@@ -9,7 +9,15 @@ from typing import Literal
 
 from . import loader
 from .errors import CategoriaError, error_info
-from .models import AseguradoResumen, RespuestaBusqueda, RespuestaVerificacion
+from .models import (
+    AmparoDetalle,
+    AseguradoResumen,
+    PolizaDetalle,
+    RespuestaBusqueda,
+    RespuestaCobertura,
+    RespuestaPoliza,
+    RespuestaVerificacion,
+)
 
 # Registro reservado para simular una falla transitoria (ver fixtures #1, caso #7).
 DOCUMENTO_FLAKY = "DOC-FIC-9999"
@@ -116,4 +124,95 @@ def verificar_identidad(
         ok=True,
         verificado=verificado,
         asegurado_id=aseg["id"] if verificado else None,
+    )
+
+
+def consultar_poliza(
+    placa: str,
+    *,
+    vehiculos: list[dict] | None = None,
+    polizas: list[dict] | None = None,
+) -> RespuestaPoliza:
+    """Devuelve la póliza completa del vehículo identificado por placa."""
+    vehiculos = vehiculos if vehiculos is not None else loader.cargar_vehiculos()
+    polizas = polizas if polizas is not None else loader.cargar_polizas()
+
+    if not placa or not placa.strip():
+        return RespuestaPoliza(
+            ok=False,
+            error=error_info(CategoriaError.VALIDATION, "La placa no puede estar vacía."),
+        )
+    placa = placa.strip()
+
+    veh = next((v for v in vehiculos if v["placa"] == placa), None)
+    if veh is None:
+        return RespuestaPoliza(ok=True, poliza=None)  # vacío, no es error
+
+    pol = next((p for p in polizas if p["id"] == veh["poliza_id"]), None)
+    if pol is None:
+        return RespuestaPoliza(ok=True, poliza=None)
+
+    poliza = PolizaDetalle(
+        id=pol["id"],
+        numero=pol["numero"],
+        asegurado_id=pol["asegurado_id"],
+        vehiculo_id=pol["vehiculo_id"],
+        vigencia_desde=pol["vigencia_desde"],
+        vigencia_hasta=pol["vigencia_hasta"],
+        deducible=pol["deducible"],
+        amparos=[AmparoDetalle(**a) for a in pol["amparos"]],
+    )
+    return RespuestaPoliza(ok=True, poliza=poliza)
+
+
+def verificar_cobertura(
+    numero_poliza: str,
+    tipo: str,
+    fecha: str,
+    *,
+    polizas: list[dict] | None = None,
+) -> RespuestaCobertura:
+    """Responde si el tipo de siniestro está cubierto por la póliza en la fecha dada."""
+    polizas = polizas if polizas is not None else loader.cargar_polizas()
+
+    if not numero_poliza or not tipo or not fecha:
+        return RespuestaCobertura(
+            ok=False,
+            error=error_info(
+                CategoriaError.VALIDATION, "numero_poliza, tipo y fecha son obligatorios."
+            ),
+        )
+
+    pol = next((p for p in polizas if p["numero"] == numero_poliza), None)
+    if pol is None:
+        # Preguntar por una póliza inexistente no es "vacío": es un error (FR-009).
+        return RespuestaCobertura(
+            ok=False,
+            error=error_info(CategoriaError.BUSINESS, "No existe una póliza con ese número."),
+        )
+
+    # La vigencia prevalece sobre el estado del amparo.
+    if not (pol["vigencia_desde"] <= fecha <= pol["vigencia_hasta"]):
+        return RespuestaCobertura(
+            ok=True,
+            cubierto="no",
+            motivo="La póliza no estaba vigente en la fecha del siniestro.",
+            deducible=pol["deducible"],
+        )
+
+    amparo = next((a for a in pol["amparos"] if a["tipo"] == tipo), None)
+    if amparo is None:
+        return RespuestaCobertura(
+            ok=True,
+            cubierto="no",
+            motivo=f"El amparo '{tipo}' no está contratado en la póliza.",
+            deducible=pol["deducible"],
+        )
+
+    motivo = amparo.get("condiciones") or f"Amparo '{tipo}': {amparo['cubierto']}."
+    return RespuestaCobertura(
+        ok=True,
+        cubierto=amparo["cubierto"],
+        motivo=motivo,
+        deducible=pol["deducible"],
     )
