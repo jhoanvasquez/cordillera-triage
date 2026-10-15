@@ -4,9 +4,10 @@ Domain field names are in English; the technical envelope (`ok`, `error`,
 `resultCount`) stays in English per the constitution (Principle IV/VI).
 """
 
+from enum import Enum
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .errors import ErrorInfo
 
@@ -76,4 +77,68 @@ class CoverageResponse(BaseModel):
     covered: Literal["si", "no", "incierto"] | None = None
     reason: str | None = None
     deductible: int | None = None
+    error: ErrorInfo | None = None
+
+
+class ThirdParties(BaseModel):
+    """Third parties involved in the incident."""
+
+    present: bool | None = None
+    identified: bool | None = None
+    description: str | None = None
+
+
+class Triage(BaseModel):
+    """Structured triage of the incident. Canonical owner: feature #5.
+
+    Fields the report does not mention stay None; the agent must not invent them.
+    """
+
+    claim_type: str | None = None
+    severity: Literal["leve", "moderada", "grave"] | None = None
+    injuries_reported: bool | None = None
+    injury_description: str | None = None
+    third_parties: ThirdParties = Field(default_factory=ThirdParties)
+    incident_date: str | None = None
+    referenced_vehicle: str | None = None
+    message_topics: list[str] = []
+    missing_data: list[str] = []
+
+
+class EscalationCause(str, Enum):
+    """Why a case is escalated to a human adjuster (domain values, Spanish)."""
+
+    SOLICITUD_ASEGURADO = "solicitud_asegurado"
+    SEVERIDAD = "severidad"
+    LESIONES = "lesiones"
+    COBERTURA_INCIERTA = "cobertura_incierta"
+    FALLA_TECNICA = "falla_tecnica"
+
+
+class Handoff(BaseModel):
+    """Structured summary for a human adjuster with no access to the conversation."""
+
+    insured_id: str
+    policy_number: str | None = None
+    triage: Triage
+    actions_taken: list[str] = []
+    escalation_cause: EscalationCause
+    priority: Literal["alta", "media", "baja"]
+    recommended_action: str
+
+
+class ClaimResponse(BaseModel):
+    """Result of `abrir_reclamo`."""
+
+    ok: bool
+    claim_id: str | None = None
+    error: ErrorInfo | None = None
+
+
+class EscalationResponse(BaseModel):
+    """Result of `escalar_a_ajustador`."""
+
+    ok: bool
+    escalation_id: str | None = None
+    priority: str | None = None
     error: ErrorInfo | None = None

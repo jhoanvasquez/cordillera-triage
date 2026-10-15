@@ -10,9 +10,13 @@ from mcp.server.fastmcp import FastMCP
 
 from . import service
 from .models import (
+    ClaimResponse,
     CoverageResponse,
+    EscalationResponse,
+    Handoff,
     PolicyResponse,
     SearchResponse,
+    Triage,
     VerificationResponse,
 )
 
@@ -57,6 +61,25 @@ def verificar_cobertura(numero_poliza: str, tipo: str, fecha: str) -> CoverageRe
     responder una duda de cobertura (por ejemplo, la grúa). No devuelve la póliza completa.
     """
     return service.check_coverage(numero_poliza, tipo, fecha)
+
+
+@mcp.tool()
+def abrir_reclamo(documento: str, numero_poliza: str, triage: Triage) -> ClaimResponse:
+    """Abre un reclamo con el triage estructurado del siniestro.
+
+    Requiere identidad verificada y póliza vigente en la fecha del siniestro (defensa en
+    profundidad de la regla 1). Si no se cumplen, devuelve un error de negocio.
+    """
+    return service.open_claim(documento, numero_poliza, triage)
+
+
+@mcp.tool()
+def escalar_a_ajustador(handoff: Handoff) -> EscalationResponse:
+    """Pasa el caso a un ajustador humano con un resumen estructurado y una prioridad.
+
+    El resumen debe permitir actuar a un ajustador que no tiene acceso a la conversación.
+    """
+    return service.escalate_to_adjuster(handoff)
 
 
 def main() -> None:

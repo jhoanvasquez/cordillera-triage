@@ -7,15 +7,19 @@ and fall back to loading from fixtures when not provided.
 
 from typing import Literal
 
-from . import loader
+from . import loader, state
 from .errors import ErrorCategory, error_info
 from .models import (
+    ClaimResponse,
     CoverageDetail,
     CoverageResponse,
+    EscalationResponse,
+    Handoff,
     InsuredSummary,
     PolicyDetail,
     PolicyResponse,
     SearchResponse,
+    Triage,
     VerificationResponse,
 )
 
@@ -88,9 +92,15 @@ def verify_identity(
     birth_date: str,
     *,
     insured: list[dict] | None = None,
+    registry: state.VerificationRegistry | None = None,
 ) -> VerificationResponse:
-    """Confirm identity with a second data point. Only reports; rule 1 is applied by the hook."""
+    """Confirm identity with a second data point. Only reports; rule 1 is applied by the hook.
+
+    On a successful match it records the document in the verification registry, which
+    `open_claim` consults as defense in depth for rule 1 (#005).
+    """
     insured = insured if insured is not None else loader.load_insured()
+    registry = registry if registry is not None else state.verification_registry
 
     if not document or not birth_date:
         return VerificationResponse(
@@ -117,6 +127,8 @@ def verify_identity(
         )
 
     verified = record["birth_date"] == birth_date
+    if verified:
+        registry.mark_verified(document)
     return VerificationResponse(
         ok=True,
         verified=verified,
@@ -213,3 +225,63 @@ def check_coverage(
         reason=reason,
         deductible=pol["deductible"],
     )
+
+
+def open_claim(
+    insured_document: str,
+    policy_number: str,
+    triage: Triage,
+    *,
+    registry: state.VerificationRegistry | None = None,
+    policies: list[dict] | None = None,
+    store: state.ClaimStore | None = None,
+) -> ClaimResponse:
+    """Open a claim. Defense in depth for rule 1: identity verified AND policy valid on the date."""
+    registry = registry if registry is not None else state.verification_registry
+    policies = policies if policies is not None else loader.load_policies()
+    store = store if store is not None else state.claim_store
+
+    # Rule 1a: the insured's identity must have been verified this session.
+    if not registry.is_verified(insured_document):
+        return ClaimResponse(
+            ok=False,
+            error=error_info(
+                ErrorCategory.BUSINESS, "La identidad del asegurado no fue verificada."
+            ),
+        )
+
+    # Rule 1b: the policy must exist and be valid on the incident date.
+    policy = next((p for p in policies if p["number"] == policy_number), None)
+    if policy is None:
+        return ClaimResponse(
+            ok=False,
+            error=error_info(ErrorCategory.BUSINESS, "No existe una póliza con ese número."),
+        )
+    if not triage.incident_date:
+        return ClaimResponse(
+            ok=False,
+            error=error_info(
+                ErrorCategory.VALIDATION, "El triage no incluye la fecha del siniestro."
+            ),
+        )
+    if not (policy["valid_from"] <= triage.incident_date <= policy["valid_to"]):
+        return ClaimResponse(
+            ok=False,
+            error=error_info(
+                ErrorCategory.BUSINESS, "La póliza no estaba vigente en la fecha del siniestro."
+            ),
+        )
+
+    claim_id = store.open(policy["insured_id"], policy_number, triage)
+    return ClaimResponse(ok=True, claim_id=claim_id)
+
+
+def escalate_to_adjuster(
+    handoff: Handoff,
+    *,
+    store: state.ClaimStore | None = None,
+) -> EscalationResponse:
+    """Hand off the case to a human adjuster with a structured summary and a priority."""
+    store = store if store is not None else state.claim_store
+    escalation_id = store.escalate(handoff)
+    return EscalationResponse(ok=True, escalation_id=escalation_id, priority=handoff.priority)
