@@ -31,7 +31,7 @@ N/A — reutiliza las dependencias y la infraestructura (loader, envelope) de la
 
 ## Fase 2: Fundacional (prerrequisitos bloqueantes)
 
-- [ ] T001 Añadir a `models.py`: `AmparoDetalle`, `PolizaDetalle`, `RespuestaPoliza`, `RespuestaCobertura` (Pydantic).
+- [x] T001 Añadir a `models.py`: `AmparoDetalle`, `PolizaDetalle`, `RespuestaPoliza`, `RespuestaCobertura` (Pydantic).
 
 **Punto de control**: los modelos de salida existen.
 
@@ -41,12 +41,12 @@ N/A — reutiliza las dependencias y la infraestructura (loader, envelope) de la
 
 ### Implementación
 
-- [ ] T002 [US1] `service.consultar_poliza(placa)` en `service.py`: resuelve el vehículo por placa; si no existe → `ok=true` con `poliza=None` (vacío, no error); si existe → arma `PolizaDetalle`.
-- [ ] T003 [US1] Registrar la herramienta `consultar_poliza` en `server.py` con su descripción distintiva (incluye la guía multi-vehículo).
+- [x] T002 [US1] `service.consultar_poliza(placa)` en `service.py`: resuelve el vehículo por placa; si no existe → `ok=true` con `poliza=None` (vacío, no error); si existe → arma `PolizaDetalle`.
+- [x] T003 [US1] Registrar la herramienta `consultar_poliza` en `server.py` con su descripción distintiva (incluye la guía multi-vehículo).
 
 ### Pruebas
 
-- [ ] T004 [US1] `test_cobertura.py`: placa `FIC-01A` → póliza con amparo `grua`; placa inexistente → vacío sin error.
+- [x] T004 [US1] `test_cobertura.py`: placa `FIC-01A` → póliza con amparo `grua`; placa inexistente → vacío sin error.
 
 **Punto de control**: `consultar_poliza` devuelve la póliza completa y maneja vacío como no-error.
 
@@ -56,12 +56,12 @@ N/A — reutiliza las dependencias y la infraestructura (loader, envelope) de la
 
 ### Implementación
 
-- [ ] T005 [US2] `service.verificar_cobertura(numero_poliza, tipo, fecha)` en `service.py`, con el orden: póliza inexistente → error `business`; fecha fuera de vigencia → `no`; sin amparo del tipo → `no`; si no → `amparo.cubierto` + motivo + deducible.
-- [ ] T006 [US2] Registrar la herramienta `verificar_cobertura` en `server.py` con su descripción distintiva.
+- [x] T005 [US2] `service.verificar_cobertura(numero_poliza, tipo, fecha)` en `service.py`, con el orden: póliza inexistente → error `business`; fecha fuera de vigencia → `no`; sin amparo del tipo → `no`; si no → `amparo.cubierto` + motivo + deducible.
+- [x] T006 [US2] Registrar la herramienta `verificar_cobertura` en `server.py` con su descripción distintiva.
 
 ### Pruebas
 
-- [ ] T007 [US2] `test_cobertura.py`: `POL-FIC-0001`+`grua` → `si`; `POL-FIC-0005`+`danos` → `incierto` (motivo domicilios); `POL-FIC-0004` (vencida) → `no`; póliza inexistente → error `business` (NO vacío).
+- [x] T007 [US2] `test_cobertura.py`: `POL-FIC-0001`+`grua` → `si`; `POL-FIC-0005`+`danos` → `incierto` (motivo domicilios); `POL-FIC-0004` (vencida) → `no`; póliza inexistente → error `business` (NO vacío).
 
 **Punto de control**: `cubierto` distingue si/no/incierto; vencida → no; inexistente → error.
 
@@ -71,8 +71,8 @@ N/A — reutiliza las dependencias y la infraestructura (loader, envelope) de la
 
 ### Implementación + Pruebas
 
-- [ ] T008 [US3] Redactar las descripciones distintas y no solapadas de ambas herramientas en `server.py` (ya reflejadas en el plan).
-- [ ] T009 [US3] `test_cobertura.py`: las descripciones de las dos herramientas son distintas y la de `consultar_poliza` contiene la guía multi-vehículo (p. ej. "pregunta" / "cuál vehículo").
+- [x] T008 [US3] Redactar las descripciones distintas y no solapadas de ambas herramientas en `server.py` (ya reflejadas en el plan).
+- [x] T009 [US3] `test_cobertura.py`: las descripciones de las dos herramientas son distintas y la de `consultar_poliza` contiene la guía multi-vehículo (p. ej. "pregunta" / "cuál vehículo").
 
 **Punto de control**: las descripciones no se solapan.
 
@@ -80,8 +80,8 @@ N/A — reutiliza las dependencias y la infraestructura (loader, envelope) de la
 
 ## Fase N: Pulido y aspectos transversales
 
-- [ ] T010 Ejecutar `pytest` — toda la suite verde.
-- [ ] T011 [P] Ejecutar `ruff format` y `ruff check` sobre `src/cordillera/mcp_server/`.
+- [x] T010 Ejecutar `pytest` — toda la suite verde.
+- [x] T011 [P] Ejecutar `ruff format` y `ruff check` sobre `src/cordillera/mcp_server/`.
 
 ---
 

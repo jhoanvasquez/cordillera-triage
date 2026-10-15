@@ -9,7 +9,12 @@ from typing import Literal
 from mcp.server.fastmcp import FastMCP
 
 from . import service
-from .models import RespuestaBusqueda, RespuestaVerificacion
+from .models import (
+    RespuestaBusqueda,
+    RespuestaCobertura,
+    RespuestaPoliza,
+    RespuestaVerificacion,
+)
 
 mcp = FastMCP("cordillera")
 
@@ -32,6 +37,26 @@ def verificar_identidad(documento: str, fecha_nacimiento: str) -> RespuestaVerif
     Devuelve verificado=true/false; no revela la fecha almacenada.
     """
     return service.verificar_identidad(documento, fecha_nacimiento)
+
+
+@mcp.tool()
+def consultar_poliza(placa: str) -> RespuestaPoliza:
+    """Devuelve la póliza COMPLETA de un VEHÍCULO ESPECÍFICO: vigencia, amparos y deducibles.
+
+    Úsala para conocer qué contiene la póliza. Si el asegurado tiene varios vehículos y el
+    reporte no dice cuál, PREGUNTA PRIMERO cuál vehículo; no adivines.
+    """
+    return service.consultar_poliza(placa)
+
+
+@mcp.tool()
+def verificar_cobertura(numero_poliza: str, tipo: str, fecha: str) -> RespuestaCobertura:
+    """Responde UNA sola pregunta: ¿el tipo de siniestro está cubierto por la póliza en la fecha?
+
+    Devuelve cubierto: si | no | incierto con un motivo. Úsala antes de abrir un reclamo o de
+    responder una duda de cobertura (por ejemplo, la grúa). No devuelve la póliza completa.
+    """
+    return service.verificar_cobertura(numero_poliza, tipo, fecha)
 
 
 def main() -> None:
