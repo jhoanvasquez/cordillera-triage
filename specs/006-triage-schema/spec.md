@@ -27,7 +27,7 @@ agente depende de él.
 **Escenarios de aceptación**:
 
 1. **Dado** datos parciales (solo severidad y fecha), **Cuando** se construye el triage, **Entonces** los demás campos quedan `None` (listas vacías) — el agente no inventa.
-2. **Dado** `severity` fuera de `{leve, moderada, grave}` o `claim_type` fuera del enum, **Cuando** se valida, **Entonces** Pydantic lo rechaza.
+2. **Dado** `severity` fuera de `{leve, moderada, grave}`, **Cuando** se valida, **Entonces** Pydantic lo rechaza. (`claim_type` NO se restringe por esquema: el enunciado no enumera los tipos de siniestro — ver nota de validación en Supuestos.)
 3. **Dado** un triage, **Entonces** expone `missing_data` (datos faltantes) como lista.
 
 ---
@@ -59,7 +59,7 @@ validado; con datos inválidos → error de validación (no un triage a medias).
 ### Requisitos funcionales
 
 - **FR-001**: El esquema `Triage` DEBE tener todos los campos de contenido nulos por defecto (lo no mencionado queda `None`), salvo las listas (`message_topics`, `missing_data`) que por defecto son vacías.
-- **FR-002**: `claim_type` DEBE ser un enum `TipoSiniestro` (valores de dominio en español).
+- **FR-002**: `claim_type` es **texto libre** (`str | None`). El enunciado (behavior #5) menciona "tipo de siniestro" como campo pero **no enumera sus valores**, por lo que NO se impone un enum cerrado (evitar rechazar tipos legítimos no previstos). La guía de tipos frecuentes va en el prompt (#6).
 - **FR-003**: `severity` DEBE ser `Literal["leve","moderada","grave"] | None` (valores del enunciado).
 - **FR-004**: El esquema DEBE incluir `third_parties`, `incident_date`, `referenced_vehicle`, `message_topics`, `missing_data` (behaviors #5, #6, #7).
 - **FR-005**: DEBE existir `registrar_triage` que valide la entrada contra el esquema y devuelva un `Triage` validado; entrada inválida → error de validación.
@@ -68,7 +68,7 @@ validado; con datos inválidos → error de validación (no un triage a medias).
 
 ### Entidades clave *(include if feature involves data)*
 
-- **TipoSiniestro** (enum, valores español): p. ej. `colision`, `robo`, `incendio`, `vandalismo`, `fenomeno_natural`, `otro`.
+- **claim_type**: texto libre (`str | None`), NO enumerado por el enunciado.
 - **Triage** / **ThirdParties**: definidos en `models.py` (sembrados en #4); aquí se finalizan.
 - **registrar_triage**: función/tool de salida estructurada (paquete `agent/`), backing del tool in-process del SDK.
 
@@ -77,12 +77,13 @@ validado; con datos inválidos → error de validación (no un triage a medias).
 ### Resultados medibles
 
 - **SC-001**: Un triage con datos parciales deja en `None` lo no provisto (verificable sin LLM).
-- **SC-002**: Valores inválidos de `severity`/`claim_type` son rechazados por el esquema.
+- **SC-002**: Un valor inválido de `severity` es rechazado por el esquema (`claim_type` libre no se rechaza).
 - **SC-003**: `registrar_triage` devuelve un `Triage` validado con datos válidos y error con inválidos.
 - **SC-004**: La suite de pruebas colocada corre en verde.
 
 ## Supuestos
 
+- **Validación contra la fuente de verdad**: la severidad está enumerada y es **no-negociable** (criterios pág. 2-3), por eso `severity` es un `Literal` cerrado. El "tipo de siniestro" **NO está enumerado** en el enunciado (behavior #5 solo lo nombra), por eso `claim_type` queda libre (`str | None`) y no se impone un enum cerrado. Ya NO se introduce el enum `TipoSiniestro` que se había propuesto.
 - La regla "lo no mencionado queda nulo" se garantiza por los **defaults del esquema** (`None`) + la **instrucción del prompt** (el prompt es #6).
 - El **wiring** de `registrar_triage` como tool in-process del SDK y el loop del agente son **#6**.
 - Campos en inglés; valores de enum/estado en español (convención #20).
