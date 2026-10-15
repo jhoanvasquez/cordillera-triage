@@ -1,59 +1,72 @@
-# Cordillera Triage Constitution
+# Constitución de Cordillera Triage
 
-First-contact auto-claims triage agent for *Aseguradora Cordillera*, built with the
-Claude Agent SDK and a scenario MCP server. This constitution captures the principles
-every ticket must respect. The business rules and severity criteria below are quoted
-**verbatim in Spanish** on purpose: the brief states they are non-negotiable, so they are
-reproduced, not translated or paraphrased.
+Agente de triage de primer contacto para siniestros de auto de *Aseguradora Cordillera*,
+construido con el Claude Agent SDK y un servidor MCP del escenario. Esta constitución recoge
+los principios que todo ticket debe respetar. Las reglas de negocio y los criterios de
+severidad se citan **textualmente** porque el enunciado los declara no negociables.
 
-## Core Principles
+## Principios fundamentales
 
-### I. Business Rules Guaranteed by Hooks, Not Prompts (NON-NEGOTIABLE)
-Anything whose violation is a **business, security or compliance failure is enforced with a
-hook** (SDK or Claude Code); **style and judgment calls go in instructions**. A business rule
-that depends only on the prompt is a grave fault.
-- Session state is built **only from tool results**, never from what the model says.
-- Rules 1 and 2 (and the deterministic part of rule 3) are **SDK hooks**. Rules 4 and 5 are
-  judgment calls → instructions + the coverage subagent.
-- Determining severity is judgment (prompt + schema); acting on severity is a rule (hook).
+### I. Reglas de negocio garantizadas por hooks, no por el prompt (NO NEGOCIABLE)
+Todo aquello cuya violación constituya una falla de negocio, seguridad o cumplimiento se hace
+cumplir con un **hook** (del SDK o de Claude Code); las cuestiones de estilo y de criterio van
+en **instrucciones**. Una regla de negocio que dependa solo del prompt es una falta grave.
+- El estado de la sesión se construye **únicamente a partir de resultados de herramientas**,
+  nunca de lo que dice el modelo.
+- Las reglas 1 y 2 (y la parte determinista de la regla 3) son **hooks del SDK**. Las reglas 4
+  y 5 son juicios → instrucciones + el subagente de cobertura.
+- Determinar la severidad es un juicio (prompt + esquema); actuar sobre la severidad es una
+  regla (hook).
 
-### II. Fictitious Data Only (NON-NEGOTIABLE)
-No real-looking data anywhere in the repository — not in fixtures, logs, tests, or config.
-- Fake identifiers use impossible-by-design shapes that cannot match real Colombian formats:
-  documents as `DOC-FIC-0001`, plates as `FIC-01A`. A reserved `FIC`/`DOC-FIC` marker is
-  mandatory.
-- A PreToolUse hook (`block_real_ids`) and a CI/pre-commit check reject anything shaped like
-  a real ID or plate before the file exists.
+### II. Solo datos ficticios (NO NEGOCIABLE)
+Ningún valor con forma de dato real en todo el repositorio — ni en fixtures, ni en logs, ni en
+configuración.
+- Los identificadores ficticios usan formas imposibles por diseño que no pueden coincidir con
+  formatos reales colombianos: documentos como `DOC-FIC-0001`, placas como `FIC-01A`. El
+  marcador reservado `FIC`/`DOC-FIC` es obligatorio.
+- Un hook PreToolUse (`block_real_ids`) y una verificación en CI/pre-commit rechazan cualquier
+  cosa con forma de documento o placa real antes de que el archivo exista.
 
-### III. Spec-Driven Development (NON-NEGOTIABLE)
-No production code under `src/**` without a backing `spec.md`, `plan.md` and `tasks.md`.
-- A PreToolUse hook (`require_spec`) blocks writes under `src/**` unless
-  `specs/<current-branch>/spec.md` exists. Config tickets don't produce production code, so the
-  hook guards only `src/**`.
-- Functional requirements live in `spec.md`; architecture/technical decisions in `plan.md`;
-  project principles here; ecosystem mechanism choices in `DECISIONES.md`. Separation is by
-  artifact, not a post-hoc split.
-- Spec Kit artifacts are versioned; they are evidence reviewed in the defense.
+### III. Desarrollo guiado por especificaciones (NO NEGOCIABLE)
+No se escribe código de producción en `src/**` sin su `spec.md`, `plan.md` y `tasks.md`.
+- Un hook PreToolUse (`require_spec`) bloquea escrituras en `src/**` salvo que exista
+  `specs/<rama-actual>/spec.md`. Los tickets de configuración no producen código de producción,
+  por lo que el hook solo protege `src/**`.
+- Los requisitos funcionales viven en `spec.md`; las decisiones de arquitectura/técnicas en
+  `plan.md`; los principios del proyecto, aquí; las decisiones de mecanismo del ecosistema en
+  `DECISIONES.md`. La separación es por artefacto, no una división posterior.
+- Los artefactos de Spec Kit se versionan; son evidencia revisada en la sustentación.
 
-### IV. Structured Over Free Text
-Triage and tool I/O are validated against schemas, never free text.
-- Triage is produced as structured output (Pydantic): tipo de siniestro, severidad, lesiones
-  reportadas, terceros, datos faltantes. **What the report does not mention stays null; the
-  agent does not invent it.**
-- Tools return the native MCP shape (`isError`, `content`, `structuredContent`). Errors carry
-  `errorCategory` in `transient | validation | business | permissions` and `isRetryable`.
-  **An empty search is not an error** (`isError: false`, `resultCount: 0`).
-- Convention: MCP transport/error envelope in English; domain values in Spanish
-  (`severidad: leve|moderada|grave`, `cubierto: si|no|incierto`).
+### IV. Estructurado antes que texto libre
+El triage y la E/S de las herramientas se validan contra esquemas, nunca texto libre.
+- El triage se produce como salida estructurada (Pydantic): tipo de siniestro, severidad,
+  lesiones reportadas, terceros y datos faltantes. **Lo que el reporte no menciona queda nulo;
+  el agente no lo inventa.**
+- Las herramientas devuelven la forma nativa de MCP (`isError`, `content`, `structuredContent`).
+  Los errores llevan `errorCategory` en `transient | validation | business | permissions` e
+  `isRetryable`. **Una búsqueda sin resultados no es un error** (`isError: false`,
+  `resultCount: 0`).
+- Convención: el envelope de transporte/errores de MCP en inglés; los valores de dominio en
+  español (`severidad: leve|moderada|grave`, `cubierto: si|no|incierto`).
 
-### V. Autonomous Traceability
-The GitHub Project and issues are the single source of truth and update themselves.
-- Tickets move Todo → In progress (start) → In review (PR) → Done (merge) without manual edits.
-- Every PR references and closes its issue; every issue gets progress comments.
-- Commits follow Conventional Commits (`<type>(<scope>): <subject>`), no AI attribution. An
-  evaluator must be able to reconstruct the project from GitHub alone.
+### V. Trazabilidad autónoma
+El GitHub Project y los issues son la única fuente de verdad y se actualizan solos.
+- Los tickets pasan Todo → In progress (inicio) → In review (PR) → Done (merge) sin edición
+  manual.
+- Cada PR referencia y cierra su issue; cada issue recibe comentarios de avance.
+- Los commits siguen Conventional Commits (`<tipo>(<alcance>): <asunto>`), sin atribución a IA.
+  Un evaluador debe poder reconstruir el proyecto solo mirando GitHub.
 
-## Business Rules & Severity Criteria (verbatim — no se negocian)
+### VI. Idioma de los artefactos
+Los artefactos de proyecto y la documentación se redactan en **español neutro/profesional**:
+esta constitución, las specs, los planes, las tareas y los documentos (`DECISIONES.md`,
+`README.md`).
+- Permanecen en **inglés**: los identificadores de código, los nombres de archivos y rutas, y
+  el envelope de transporte/errores de MCP (Principio IV).
+- Permanecen **textuales en español**: las reglas de negocio y los criterios de severidad del
+  enunciado.
+
+## Reglas de negocio y criterios de severidad (textual — no se negocian)
 
 **Criterios de severidad de la aseguradora:**
 - **Leve**: Daños en piezas exteriores. El vehículo puede seguir circulando.
@@ -67,34 +80,37 @@ The GitHub Project and issues are the single source of truth and update themselv
 4. Si el asegurado pide explícitamente hablar con una persona, se escala de inmediato, sin investigar primero.
 5. Si la póliza no cubre el caso con claridad, por ejemplo un vehículo particular que estaba haciendo domicilios, el agente escala en lugar de improvisar.
 
-**Enforcement mapping (hooks vs instructions):**
+**Mapeo de aplicación (hooks vs instrucciones):**
 
-| Rule | Mechanism | Where |
+| Regla | Mecanismo | Dónde |
 |---|---|---|
-| 1 — identity + policy valid | **Hook** | PreToolUse `abrir_reclamo` denies unless identity verified AND policy valid on claim date |
-| 2 — leve auto, moderada/grave human | **Hook** | PreToolUse `abrir_reclamo` denies unless severity `leve`; else escalate |
-| 3 — injuries → escalate, prioridad alta | **Hook** | PreToolUse `escalar_a_ajustador` forces `prioridad = alta`; `abrir_reclamo` denied if injuries |
-| 4 — asks for a human → escalate now | Instruction | System prompt; no investigation first |
-| 5 — coverage unclear → escalate | Instruction + subagent | `revisor-cobertura`; `incierto` → escalate |
+| 1 — identidad + póliza vigente | **Hook** | PreToolUse `abrir_reclamo` niega salvo identidad verificada Y póliza vigente en la fecha del siniestro |
+| 2 — leve automático, moderada/grave humano | **Hook** | PreToolUse `abrir_reclamo` niega salvo severidad `leve`; en otro caso, escala |
+| 3 — lesiones → escalar, prioridad alta | **Hook** | PreToolUse `escalar_a_ajustador` fuerza `prioridad = alta`; `abrir_reclamo` se niega si hay lesiones |
+| 4 — pide hablar con una persona → escalar ya | Instrucción | System prompt; sin investigar primero |
+| 5 — cobertura no clara → escalar | Instrucción + subagente | `revisor-cobertura`; `incierto` → escalar |
 
-## Security, Secrets & Quality Gates
+## Seguridad, secretos y controles de calidad
 
-- **Secrets** are never read or modified from Claude Code: `permissions.deny` on `Read/Edit`
-  of `.env*` and `**/secrets/**`. No credential, `.env`, or token in the repo or the delivery
-  `.zip` — git history cannot be rewritten, so a leak is permanent.
-- **Formatting** runs after every edit: PostToolUse hook → `ruff format` on the edited file.
-- **Independent review before PR**: a `code-reviewer` subagent (fresh context, read-only) and a
-  `compliance-reviewer` subagent (business rules 1–5 vs this constitution) run before opening a
-  PR, orchestrated by `/ship`.
-- **Correct agentic loop**: the loop ends on the model's stop reason — never on an iteration
-  count or by matching words in the text.
+- Los **secretos** nunca se leen ni se modifican desde Claude Code: `permissions.deny` sobre
+  `Read/Edit` de `.env*` y `**/secrets/**`. Ninguna credencial, `.env` ni token en el
+  repositorio o en el `.zip` de entrega — la historia de git no se puede reescribir, así que
+  una filtración es permanente.
+- El **formateo** corre después de cada edición: hook PostToolUse → `ruff format` sobre el
+  archivo editado.
+- **Revisión independiente antes del PR**: un subagente `code-reviewer` (contexto fresco, solo
+  lectura) y un subagente `compliance-reviewer` (reglas de negocio 1–5 contra esta
+  constitución) corren antes de abrir un PR, orquestados por `/ship`.
+- **Ciclo agéntico correcto**: el loop termina según la razón de parada del modelo — nunca por
+  un número de iteraciones ni por buscar palabras en el texto.
 
-## Governance
+## Gobernanza
 
-This constitution supersedes other practices for this repository. The business rules and
-severity criteria are fixed by the assessment brief and MUST NOT be altered. Other principles
-may be amended by updating this file with a version bump and a one-line rationale; amendments
-must keep the repo consistent with the brief. Every spec, plan and review verifies compliance
-with these principles; any added complexity must map to a real need or be removed.
+Esta constitución prevalece sobre otras prácticas en este repositorio. Las reglas de negocio y
+los criterios de severidad están fijados por el enunciado de la prueba y NO DEBEN alterarse.
+Los demás principios pueden enmendarse actualizando este archivo con un incremento de versión y
+una línea de justificación; las enmiendas deben mantener el repositorio consistente con el
+enunciado. Toda spec, plan y revisión verifica el cumplimiento de estos principios; cualquier
+complejidad añadida debe responder a una necesidad real o eliminarse.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-14
+**Version**: 1.1.0 | **Ratified**: 2026-10-14 | **Last Amended**: 2026-10-15
