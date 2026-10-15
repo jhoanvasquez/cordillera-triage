@@ -24,8 +24,10 @@ from claude_agent_sdk import (
     TextBlock,
 )
 
+from .hooks import build_hooks
 from .prompt import load_system_prompt
 from .sdk_tools import triage_server
+from .state import SessionState
 
 logger = logging.getLogger(__name__)
 
@@ -63,9 +65,16 @@ class RunResult:
     is_error: bool
 
 
-def build_options(model: str = DEFAULT_MODEL) -> ClaudeAgentOptions:
-    """Build the SDK options: system prompt, the two MCP surfaces, allowed tools."""
-    return ClaudeAgentOptions(
+def build_options(
+    model: str = DEFAULT_MODEL, state: SessionState | None = None
+) -> ClaudeAgentOptions:
+    """Build the SDK options: system prompt, the two MCP surfaces, allowed tools.
+
+    When a `state` is given, the business-rule hooks (#7) are wired so the state
+    is populated from tool results and `abrir_reclamo`/`escalar_a_ajustador` are
+    guarded deterministically.
+    """
+    options = ClaudeAgentOptions(
         model=model,
         system_prompt=load_system_prompt(),
         mcp_servers={
@@ -80,6 +89,9 @@ def build_options(model: str = DEFAULT_MODEL) -> ClaudeAgentOptions:
         allowed_tools=ALLOWED_TOOLS,
         stderr=lambda line: logger.debug("cli stderr: %s", line),
     )
+    if state is not None:
+        options.hooks = build_hooks(state)
+    return options
 
 
 async def consume(messages: AsyncIterable[Message]) -> RunResult:
@@ -133,7 +145,8 @@ async def run(report: str, *, model: str = DEFAULT_MODEL) -> RunResult:
     Raises a clear error if the agent/MCP connection cannot be established, so a
     failure surfaces instead of hanging (FR-008).
     """
-    options = build_options(model=model)
+    state = SessionState()
+    options = build_options(model=model, state=state)
     try:
         async with ClaudeSDKClient(options=options) as client:
             await client.query(report)
