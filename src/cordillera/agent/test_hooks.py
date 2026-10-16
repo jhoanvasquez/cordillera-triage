@@ -52,6 +52,13 @@ def test_extract_structured_handles_all_shapes():
         "severity": "leve"
     }
     assert extract_structured({"ok": True, "verified": True}) == {"ok": True, "verified": True}
+    # The live CLI delivers MCP tool results as JSON strings (#12 finding).
+    assert extract_structured('{"ok": true, "verified": true, "insured_id": "A-001"}') == {
+        "ok": True,
+        "verified": True,
+        "insured_id": "A-001",
+    }
+    assert extract_structured("not json") == {}
     assert extract_structured(None) == {}
 
 

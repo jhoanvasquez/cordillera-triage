@@ -13,6 +13,9 @@ dependencies = [
 python_files = ["test_*.py"]
 testpaths = ["src"]
 pythonpath = ["src"]
+markers = [
+    "e2e: scenario tests that run the real model (opt-in via RUN_E2E=1; not in the default suite)",
+]
 
 [tool.ruff]
 line-length = 100

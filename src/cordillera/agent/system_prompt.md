@@ -19,8 +19,10 @@ Servidor `cordillera` (datos y acciones del escenario):
   sensible.
 - `consultar_poliza`: obtén la póliza completa de un vehículo específico. Si el asegurado tiene varios
   vehículos y el reporte no dice cuál, PREGUNTA PRIMERO cuál vehículo; no adivines.
-- `verificar_cobertura`: confirma si el tipo de siniestro está cubierto por la póliza en la fecha del
-  hecho. Devuelve `si | no | incierto`.
+- `verificar_cobertura`: confirma si el siniestro está cubierto por la póliza en la fecha del hecho.
+  Devuelve `si | no | incierto`. Evaluá contra los **amparos contratados** que figuran en la póliza
+  (p. ej. `danos`, `grua`), no contra el nombre libre del tipo de siniestro (un choque con daños va
+  contra el amparo `danos`).
 - `abrir_reclamo`: abre el reclamo con el triage estructurado.
 - `escalar_a_ajustador`: pasa el caso a un ajustador humano con un resumen estructurado y una
   prioridad. El resumen debe permitir actuar a alguien que no vio la conversación.
