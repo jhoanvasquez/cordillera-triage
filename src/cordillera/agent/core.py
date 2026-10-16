@@ -24,6 +24,7 @@ from claude_agent_sdk import (
     TextBlock,
 )
 
+from .coverage import build_coverage_reviewer
 from .hooks import build_hooks
 from .prompt import load_system_prompt
 from .sdk_tools import triage_server
@@ -51,6 +52,12 @@ ALLOWED_TOOLS = [
     "mcp__cordillera__abrir_reclamo",
     "mcp__cordillera__escalar_a_ajustador",
     "mcp__triage__registrar_triage",
+    # Delegation to the revisor-cobertura subagent (#8). Empirically the bundled
+    # CLI surfaces this tool as "Agent" (tool_use) and "Task" (init list); the
+    # exact name isn't an SDK-documented contract, so we allow both. Confirm at
+    # runtime (#12). An unmatched allowed-tool name is simply unused — harmless.
+    "Agent",
+    "Task",
 ]
 
 
@@ -87,6 +94,7 @@ def build_options(
             "triage": triage_server,
         },
         allowed_tools=ALLOWED_TOOLS,
+        agents={"revisor-cobertura": build_coverage_reviewer()},
         stderr=lambda line: logger.debug("cli stderr: %s", line),
     )
     if state is not None:

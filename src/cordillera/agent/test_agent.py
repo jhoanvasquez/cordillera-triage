@@ -81,8 +81,7 @@ def test_build_options_wires_both_mcp_surfaces_and_tools():
 
     assert servers["triage"] is triage_server
 
-    assert len(ALLOWED_TOOLS) == 7
-    assert set(ALLOWED_TOOLS) == {
+    mcp_tools = {
         "mcp__cordillera__buscar_asegurado",
         "mcp__cordillera__verificar_identidad",
         "mcp__cordillera__consultar_poliza",
@@ -91,6 +90,8 @@ def test_build_options_wires_both_mcp_surfaces_and_tools():
         "mcp__cordillera__escalar_a_ajustador",
         "mcp__triage__registrar_triage",
     }
+    assert mcp_tools <= set(ALLOWED_TOOLS)
+    assert "Agent" in ALLOWED_TOOLS  # delegation to revisor-cobertura (#8)
 
 
 # --- US1: loop termination by the SDK result (no count, no keywords) --------
