@@ -33,6 +33,13 @@ class SessionState:
     policy_valid_to: str | None = None
     coverage: Coverage | None = None
     triage: Triage | None = None
+    # Action outcomes observed from tool results (consumed by the chat UI, #9).
+    # Single-slot by design: #9 assumes at most one claim and one escalation per
+    # session. A list-based event log would be needed only if a session had to
+    # record several. Derived from results (Principle I), not model text.
+    claim_id: str | None = None
+    escalation_id: str | None = None
+    escalation_priority: str | None = None
 
     # --- recorders: called by PostToolUse hooks with the structured tool result ---
 
@@ -71,6 +78,17 @@ class SessionState:
             self.triage = Triage.model_validate(resp)
         except ValidationError:
             return
+
+    def record_claim(self, resp: dict[str, Any]) -> None:
+        """Record an opened claim's id (from `abrir_reclamo`'s result)."""
+        if resp.get("ok") and resp.get("claim_id"):
+            self.claim_id = resp.get("claim_id")
+
+    def record_escalation(self, resp: dict[str, Any]) -> None:
+        """Record an escalation's id and forced priority (from `escalar_a_ajustador`)."""
+        if resp.get("ok") and resp.get("escalation_id"):
+            self.escalation_id = resp.get("escalation_id")
+            self.escalation_priority = resp.get("priority")
 
     # --- derived facts ---
 
