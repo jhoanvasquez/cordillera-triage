@@ -72,6 +72,10 @@ def make_post_tool_use(state: SessionState):
             state.record_coverage(resp)
         elif name.endswith("registrar_triage"):
             state.record_triage(resp)
+        elif name.endswith("abrir_reclamo"):
+            state.record_claim(resp)
+        elif name.endswith("escalar_a_ajustador"):
+            state.record_escalation(resp)
         return {}
 
     return record
