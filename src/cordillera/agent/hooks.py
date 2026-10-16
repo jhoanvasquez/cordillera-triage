@@ -43,9 +43,17 @@ def _parse_text_content(content: Any) -> dict[str, Any] | None:
 def extract_structured(tool_response: Any) -> dict[str, Any]:
     """Best-effort extraction of the structured result from a tool_response.
 
-    Handles: a dict carrying `structuredContent`; a content-based result whose
-    text block is JSON (e.g. `registrar_triage`); or an already-structured dict.
+    The live CLI delivers an MCP tool result as a **JSON string** (confirmed in #12),
+    e.g. '{"ok":true,"verified":true,...}'. We also handle the shapes used in tests:
+    a dict carrying `structuredContent`, a content-list whose text block is JSON, or
+    an already-structured dict.
     """
+    if isinstance(tool_response, str):
+        try:
+            parsed = json.loads(tool_response)
+        except ValueError:
+            return {}
+        return parsed if isinstance(parsed, dict) else {}
     if isinstance(tool_response, dict):
         structured = tool_response.get("structuredContent")
         if isinstance(structured, dict):

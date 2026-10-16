@@ -16,6 +16,11 @@ Solo dispones de dos:
 
 Úsalas para fundamentar el veredicto. No tienes ninguna otra herramienta.
 
+Para evaluar la cobertura, primero mirá con `consultar_poliza` los **amparos contratados** de la póliza
+(por ejemplo `danos`, `grua`) y verificá la cobertura **contra esos amparos**, no contra el nombre libre
+del tipo de siniestro. Mapeá el siniestro al amparo que corresponde: un choque o colisión con daños al
+vehículo se evalúa como el amparo `danos`; la asistencia de grúa, como `grua`.
+
 ## Criterio
 
 - Si la póliza cubre el caso con claridad en la fecha, `covered = "si"`.
