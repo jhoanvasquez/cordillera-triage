@@ -75,3 +75,12 @@ def test_identity_unknown_document():
     r = service.verify_identity("DOC-FIC-7777", "1985-03-12")
     assert r.ok is False
     assert r.error.errorCategory.value == "business"
+
+
+def test_identity_flaky_record_is_transient_error():
+    # The transient-fault injection (flaky record) also surfaces on verify_identity:
+    # a transient error that is retryable (feeds the #12 transient-failure case).
+    r = service.verify_identity("DOC-FIC-9999", "2000-01-01")
+    assert r.ok is False
+    assert r.error.errorCategory.value == "transient"
+    assert r.error.isRetryable is True
