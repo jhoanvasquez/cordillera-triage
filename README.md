@@ -12,8 +12,7 @@ Las reglas de negocio críticas no dependen del prompt: se **garantizan con hook
 
 | Recurso | Dónde |
 |---|---|
-| 🎥 Video de funcionamiento | **TODO: pegar el enlace del video acá** <!-- https://... --> |
-| 📋 GitHub Project (backlog) | **TODO: pegar el enlace del Project acá** <!-- https://github.com/users/jhoanvasquez/projects/N --> |
+| 🎥 Video de funcionamiento | https://youtu.be/VJD03kaHi1M |
 | 📦 Repositorio | https://github.com/jhoanvasquez/cordillera-triage |
 
 ## Puesta en marcha (< 5 min)
