@@ -95,5 +95,4 @@ propio `/ship`, y el plugin reutilizable **`cordillera-devkit`** (`plugins/cordi
 ## Ciclo de vida (SDD)
 
 Cada ticket implementado tiene su `spec.md`, `plan.md` y `tasks.md` en `specs/<rama>/`, versionados como
-evidencia. La constitución del proyecto vive en `.specify/memory/constitution.md`. El backlog y su avance se
-gestionan en el GitHub Project.
+evidencia. La constitución del proyecto vive en `.specify/memory/constitution.md`.
