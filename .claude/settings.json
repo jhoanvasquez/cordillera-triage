@@ -1,5 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "extraKnownMarketplaces": {
+    "cordillera-marketplace": {
+      "source": { "source": "directory", "path": "." }
+    }
+  },
+  "enabledPlugins": { "cordillera-devkit@cordillera-marketplace": true },
   "permissions": {
     "deny": [
       "Read(.env)",
@@ -16,6 +22,25 @@
       "Edit(**/*.pem)",
       "Read(**/*.key)",
       "Edit(**/*.key)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "python .claude/hooks/require_spec.py" },
+          { "type": "command", "command": "python .claude/hooks/block_real_ids.py" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "bash .claude/hooks/format.sh" }
+        ]
+      }
     ]
   }
 }

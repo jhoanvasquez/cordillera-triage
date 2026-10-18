@@ -1,0 +1,6 @@
+{
+  "name": "cordillera-devkit",
+  "version": "1.0.0",
+  "description": "Dev-quality kit reutilizable: revisión independiente de código (subagente), crítica de diseño (skill) y formateo automático tras edición (hook). Genérico, sin acoplamiento al dominio seguros.",
+  "author": { "name": "Cordillera Team" }
+}
