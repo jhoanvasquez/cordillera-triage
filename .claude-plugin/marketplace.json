@@ -1,0 +1,12 @@
+{
+  "name": "cordillera-marketplace",
+  "owner": { "name": "Cordillera Team" },
+  "plugins": [
+    {
+      "name": "cordillera-devkit",
+      "source": "./plugins/cordillera-devkit",
+      "description": "Dev-quality kit reutilizable (code-reviewer + design-review + format).",
+      "version": "1.0.0"
+    }
+  ]
+}
