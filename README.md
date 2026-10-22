@@ -12,8 +12,7 @@ Las reglas de negocio críticas no dependen del prompt: se **garantizan con hook
 
 | Recurso | Dónde |
 |---|---|
-| 🎥 Video de funcionamiento | https://youtu.be/VJD03kaHi1M |
-| 🎓 Prueba técnica Claude Code + Agent SDK — Defensa del código | https://youtu.be/amyhgtUiR6U?si=FJesd7lEBWuwAXNa |
+| 🎥 Video de funcionamiento | https://www.youtube.com/watch?v=VJD03kaHi1M |
 | 📦 Repositorio | https://github.com/jhoanvasquez/cordillera-triage |
 
 ## Puesta en marcha (< 5 min)
