@@ -12,7 +12,7 @@ Las reglas de negocio críticas no dependen del prompt: se **garantizan con hook
 
 | Recurso | Dónde |
 |---|---|
-| 🎥 Video de funcionamiento | https://www.youtube.com/watch?v=VJD03kaHi1M |
+| 🎥 Video de funcionamiento | https://www.youtube.com/watch?v=eN5pyqsXnLg |
 | 📦 Repositorio | https://github.com/jhoanvasquez/cordillera-triage |
 
 ## Puesta en marcha (< 5 min)
